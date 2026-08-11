@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0f1c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Live Updates & Opportunities - LK SMART STUDIES</title>
+    
+    <style>
+        /* ==================================================
+           CSS VARIABLES & RESET (MATCHING BRAND SYSTEM)
+           ================================================== */
+        :root {
+            --bg-dark: #0a0f1c;
+            --brand-primary: #3a86ff;
+            --brand-secondary: #8338ec;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-card: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-border-hover: rgba(255, 255, 255, 0.25);
+            --text-main: #ffffff;
+            --text-muted: #a0a5b5;
+            
+            /* Status Colors */
+            --status-open: #2ec4b6;
+            --status-closing: #ff9f1c;
+            --status-upcoming: #3a86ff;
+            --status-closed: #ff4d6d;
+            --status-result: #8338ec;
+            
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --sidebar-width: 260px;
+            --gradient-primary: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            --gradient-text: linear-gradient(135deg, #ffffff 0%, #b0c4de 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body, html { width: 100%; background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; scroll-behavior: smooth; }
+
+        /* ==================================================
+           APP LAYOUT
+           ================================================== */
+        .app-container { display: flex; min-height: 100vh; width: 100%; position: relative; z-index: 2; }
+
+        .sidebar {
+            width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0;
+            background: rgba(10, 15, 28, 0.8); backdrop-filter: blur(20px); border-right: 1px solid var(--glass-border);
+            padding: calc(30px + var(--safe-top)) 20px 30px; display: none; flex-direction: column; z-index: 100;
+        }
+
+        .brand-logo { font-size: 18px; font-weight: 800; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; letter-spacing: 1px; margin-bottom: 50px; }
+        .brand-logo svg { width: 24px; height: 24px; color: var(--brand-primary); }
+
+        .side-nav { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .side-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 15px; transition: all 0.3s; }
+        .side-link svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
+        .side-link:hover { background: var(--glass-card); color: #fff; }
+        .side-link.active { background: rgba(58, 134, 255, 0.1); color: var(--brand-primary); border: 1px solid rgba(58, 134, 255, 0.2); }
+
+        .main-content { flex-grow: 1; width: 100%; padding-bottom: calc(80px + var(--safe-bottom)); }
+
+        @media (min-width: 1024px) {
+            .sidebar { display: flex; }
+            .main-content { margin-left: var(--sidebar-width); padding-bottom: 40px; }
+        }
+
+        /* ==================================================
+           APP HEADER
+           ================================================== */
+        .app-header {
+            position: sticky; top: 0; z-index: 90; height: calc(70px + var(--safe-top));
+            background: rgba(10, 15, 28, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border); padding: var(--safe-top) 20px 0;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-title { font-size: 18px; font-weight: 700; display: none; }
+        .mobile-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; color: #fff; text-decoration: none; }
+        .mobile-brand svg { width: 20px; height: 20px; color: var(--brand-primary); }
+
+        @media (min-width: 1024px) {
+            .mobile-brand { display: none; }
+            .header-title { display: block; }
+        }
+
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .action-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+        .action-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+        .icon-svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ==================================================
+           AMBIENT BACKGROUND
+           ================================================== */
+        .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; overflow: hidden; perspective: 1000px; }
+        .glow { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.3; animation: pulseBg 15s infinite alternate ease-in-out; }
+        .glow-1 { top: -10%; right: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--brand-primary) 0%, transparent 60%); }
+        .glow-2 { bottom: -20%; left: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--brand-secondary) 0%, transparent 60%); animation-delay: -5s; }
+
+        @keyframes pulseBg { 0% { transform: scale(1); opacity: 0.2; } 100% { transform: scale(1.2); opacity: 0.4; } }
+
+        /* ==================================================
+           UI COMPONENTS & TYPOGRAPHY
+           ================================================== */
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+        section { margin-bottom: 60px; }
+        
+        .section-title { font-size: clamp(24px, 4vw, 32px); font-weight: 800; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+        .section-subtitle { font-size: clamp(14px, 3vw, 16px); color: var(--text-muted); margin-bottom: 24px; font-weight: 500; }
+        .sub-heading { font-size: 20px; font-weight: 700; margin-bottom: 24px; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .sub-heading::before { content: ''; width: 4px; height: 16px; background: var(--gradient-primary); border-radius: 2px; }
+
+        .glass-panel { background: var(--glass-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); }
+        
+        /* 3D Card System */
+        .card-3d { position: relative; transform-style: preserve-3d; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .card-3d.interactive { cursor: pointer; overflow: hidden; }
+        .card-3d.interactive::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.08), transparent 40%); z-index: 1; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+        .card-3d.interactive:hover { transform: translateY(-6px) scale(1.02); border-color: var(--glass-border-hover); box-shadow: 0 15px 35px -10px rgba(0,0,0,0.6), 0 0 20px rgba(58,134,255,0.15), inset 0 1px 0 rgba(255,255,255,0.2); }
+        .card-3d.interactive:hover::before { opacity: 1; }
+        .card-3d.interactive:active { transform: translateY(-2px) scale(0.98); }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; font-weight: 600; border-radius: 12px; border: none; cursor: pointer; transition: all 0.3s; font-size: 13px; gap: 8px; text-decoration: none; }
+        .btn-primary { background: var(--gradient-primary); color: #fff; box-shadow: 0 4px 15px rgba(58, 134, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(58, 134, 255, 0.5); color:#fff; }
+        .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: #fff; }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); color:#fff; }
+
+        /* Grid System */
+        .grid-2 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 16px; }
+        @media (min-width: 600px) { .grid-2 { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: repeat(2, 1fr); } .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1024px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } .grid-4 { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1280px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
+
+        /* ==================================================
+           HERO & SEARCH
+           ================================================== */
+        .hero-section { text-align: center; padding: 20px 0 40px; }
+        .hero-title { font-size: clamp(32px, 5vw, 48px); font-weight: 800; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; }
+        
+        .status-bar { display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; border-radius: 20px; background: rgba(58, 134, 255, 0.1); border: 1px solid rgba(58, 134, 255, 0.2); margin-bottom: 30px; font-size: 13px; font-weight: 600; color: #fff; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ec4b6; box-shadow: 0 0 10px #2ec4b6; animation: pulseDot 2s infinite; }
+        @keyframes pulseDot { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        
+        .search-box { position: relative; max-width: 800px; margin: 0 auto 30px; transform-style: preserve-3d; }
+        .search-input { width: 100%; padding: 20px 20px 20px 60px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border); border-radius: 16px; color: #fff; font-size: 16px; outline: none; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: all 0.3s; }
+        .search-input:focus { background: rgba(255, 255, 255, 0.08); border-color: var(--brand-primary); box-shadow: 0 15px 40px rgba(58,134,255,0.2); }
+        .search-icon { position: absolute; left: 24px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        /* ==================================================
+           FILTERS
+           ================================================== */
+        .filter-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 20px; scrollbar-width: none; scroll-snap-type: x mandatory; }
+        .filter-scroll::-webkit-scrollbar { display: none; }
+        
+        .filter-pill { flex: 0 0 auto; scroll-snap-align: start; padding: 10px 20px; background: var(--glass-card); border: 1px solid var(--glass-border); border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .filter-pill:hover { background: rgba(255,255,255,0.1); }
+        .filter-pill.active { background: rgba(58, 134, 255, 0.2); border-color: var(--brand-primary); color: #fff; }
+
+        /* ==================================================
+           UPDATE CARD DESIGN
+           ================================================== */
+        .update-card { padding: 24px; display: flex; flex-direction: column; height: 100%; text-align: left; }
+        
+        .uc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .uc-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--brand-primary); flex-shrink: 0; }
+        
+        .status-badge { padding: 4px 10px; font-size: 10px; font-weight: 800; text-transform: uppercase; border-radius: 6px; letter-spacing: 0.5px; border: 1px solid transparent; }
+        .status-OPEN { background: rgba(46, 196, 182, 0.15); color: var(--status-open); border-color: rgba(46, 196, 182, 0.3); }
+        .status-CLOSING { background: rgba(255, 159, 28, 0.15); color: var(--status-closing); border-color: rgba(255, 159, 28, 0.3); }
+        .status-UPCOMING { background: rgba(58, 134, 255, 0.15); color: var(--status-upcoming); border-color: rgba(58, 134, 255, 0.3); }
+        .status-CLOSED { background: rgba(255, 77, 109, 0.15); color: var(--status-closed); border-color: rgba(255, 77, 109, 0.3); }
+        .status-RESULT { background: rgba(131, 56, 236, 0.15); color: var(--status-result); border-color: rgba(131, 56, 236, 0.3); }
+        .status-NOTICE { background: rgba(255, 255, 255, 0.1); color: #fff; border-color: rgba(255, 255, 255, 0.2); }
+
+        .uc-org { font-size: 11px; font-weight: 700; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block; }
+        .uc-title { font-size: 18px; margin-bottom: 12px; line-height: 1.4; color: #fff; }
+        .uc-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; flex-grow: 1; }
+        
+        .uc-meta-list { list-style: none; margin-bottom: 20px; font-size: 12px; color: #fff; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .uc-meta-list li { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+        .uc-meta-list li:last-child { margin-bottom: 0; }
+        .uc-meta-list svg { width: 14px; height: 14px; color: var(--text-muted); flex-shrink: 0; margin-top: 1px; }
+        
+        .uc-footer { display: flex; flex-direction: column; gap: 12px; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; }
+        .uc-verified { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: #2ec4b6; }
+        .uc-unverified { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+        /* Highlighted Cards (e.g. Bihar Specials) */
+        .card-highlight { background: linear-gradient(135deg, rgba(58,134,255,0.1) 0%, rgba(131,56,236,0.1) 100%); border-color: rgba(131,56,236,0.3); }
+        
+        /* Empty State */
+        .empty-state { text-align: center; padding: 60px 20px; grid-column: 1 / -1; }
+        .empty-icon { width: 64px; height: 64px; margin: 0 auto 20px; color: var(--text-muted); }
+
+        /* ==================================================
+           DETAIL MODAL
+           ================================================== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 8, 17, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;
+            opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        
+        .detail-modal {
+            background: rgba(15, 20, 35, 0.95); border: 1px solid var(--glass-border);
+            border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            transform: scale(0.95) translateZ(-50px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .modal-overlay.active .detail-modal { transform: scale(1) translateZ(0); }
+        
+        /* Custom scrollbar for modal */
+        .detail-modal::-webkit-scrollbar { width: 8px; }
+        .detail-modal::-webkit-scrollbar-track { background: transparent; }
+        .detail-modal::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+        .modal-close { position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; }
+        .modal-close:hover { background: rgba(255,77,109,0.8); }
+
+        .modal-content-area { padding: 40px 30px 30px; }
+        .modal-header-bg { background: linear-gradient(135deg, rgba(58,134,255,0.15) 0%, transparent 100%); padding: 30px; border-bottom: 1px solid var(--glass-border); margin: -40px -30px 24px; border-radius: 20px 20px 0 0; }
+        
+        .modal-desc-box { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); font-size: 14px; line-height: 1.6; color: #e0e0e0; margin-bottom: 24px; white-space: pre-wrap; }
+        .modal-source-box { background: rgba(58,134,255,0.1); border: 1px solid rgba(58,134,255,0.2); padding: 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+
+        /* ==================================================
+           MOBILE BOTTOM NAVIGATION
+           ================================================== */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(10, 15, 28, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border); z-index: 100;
+            padding-bottom: var(--safe-bottom);
+            display: flex; justify-content: space-around; align-items: center; height: calc(70px + var(--safe-bottom));
+        }
+        @media (min-width: 1024px) { .bottom-nav { display: none; } }
+        
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 11px; gap: 4px; width: 20%; height: 100%; transition: color 0.2s; }
+        .nav-item.active { color: var(--brand-primary); }
+        .nav-item svg { width: 22px; height: 22px; stroke-width: 2; }
+        .nav-item.active svg { fill: rgba(58, 134, 255, 0.2); }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) { 
+            .reveal { opacity: 1; transform: none; transition: none; } 
+            .card-3d { transition: none; transform: none !important; } 
+            .glow, .status-dot { animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <!-- UPDATE DETAIL MODAL (Data injected via JS) -->
+    <div class="modal-overlay" id="detail-modal">
+        <div class="detail-modal">
+            <button class="modal-close" aria-label="Close modal" onclick="closeModal()">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="modal-content-area" id="modal-content-container">
+                <!-- HTML rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        
+        <!-- DESKTOP SIDEBAR -->
+        <aside class="sidebar">
+            <a href="#" class="brand-logo">
+                <svg viewBox="0 0 24 24" class="icon-svg" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                LK SMART STUDIES
+            </a>
+            <nav class="side-nav">
+                <a href="#" class="side-link"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+                <a href="#" class="side-link"><svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Student Hub</a>
+                <a href="#" class="side-link active"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Latest Updates</a>
+                <a href="#" class="side-link"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Downloads</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            
+            <!-- APP HEADER -->
+            <header class="app-header">
+                <div class="header-left">
+                    <a href="#" class="mobile-brand">
+                        <svg viewBox="0 0 24 24" class="icon-svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        LK SMART STUDIES
+                    </a>
+                    <h2 class="header-title">Live Updates & Opportunities</h2>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn" aria-label="Search" onclick="document.getElementById('main-search').focus()"><svg class="icon-svg"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+                    <button class="action-btn" aria-label="Notifications" id="desktop-bell" style="display:none;"><svg class="icon-svg"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                    <button class="action-btn" aria-label="Menu" id="mobile-menu"><svg class="icon-svg"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+                </div>
+            </header>
+
+            <div class="container">
+                
+                <!-- HERO SECTION -->
+                <section class="hero-section reveal">
+                    <div class="status-bar">
+                        <div class="status-dot"></div>
+                        Updates Center: Current Information
+                        <span style="color:var(--text-muted); font-weight:400;" id="last-updated-text">| Updated Today</span>
+                    </div>
+                    <h1 class="hero-title">Latest Updates & Opportunities</h1>
+                    <p class="section-subtitle" style="margin: 0 auto; max-width: 700px;">Scholarships, exams, jobs, admissions and important student notices — all verified and organized in one place.</p>
+                    
+                    <div class="search-box" style="margin-top: 40px;">
+                        <svg viewBox="0 0 24 24" class="icon-svg search-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="main-search" class="search-input" placeholder="Search scholarships, exams, jobs, results..." oninput="handleSearch()">
+                    </div>
+                </section>
+
+                <!-- FILTER BAR -->
+                <section class="reveal">
+                    <div class="filter-scroll" id="filter-container">
+                        <div class="filter-pill active" onclick="setFilter('ALL')">ALL</div>
+                        <div class="filter-pill" onclick="setFilter('SCHOLARSHIP')">SCHOLARSHIP</div>
+                        <div class="filter-pill" onclick="setFilter('EXAM')">EXAM</div>
+                        <div class="filter-pill" onclick="setFilter('JOB')">JOB</div>
+                        <div class="filter-pill" onclick="setFilter('ADMISSION')">ADMISSION</div>
+                        <div class="filter-pill" onclick="setFilter('RESULT')">RESULT</div>
+                        <div class="filter-pill" onclick="setFilter('ADMIT CARD')">ADMIT CARD</div>
+                        <div class="filter-pill" onclick="setFilter('NOTICE')">NOTICE</div>
+                        <div class="filter-pill" onclick="setFilter('BIHAR')">BIHAR SPECIAL</div>
+                    </div>
+                </section>
+
+                <!-- DYNAMIC CONTENT SECTIONS (Rendered via JS) -->
+                <div id="dynamic-content-area">
+                    <!-- Javascript will inject section templates and grid containers here -->
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item"><svg class="icon-svg"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+        <a href="#" class="nav-item"><svg class="icon-svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Student</a>
+        <a href="#" class="nav-item active"><svg class="icon-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Updates</a>
+        <a href="#" class="nav-item"><svg class="icon-svg"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Downloads</a>
+        <a href="#" class="nav-item"><svg class="icon-svg"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg> More</a>
+    </nav>
+
+    <!-- FRONTEND LOGIC & DATA ARCHITECTURE -->
+    <script>
+        // ==========================================
+        // ICONS ARCHITECTURE (SVG Strings)
+        // ==========================================
+        const icons = {
+            scholarship: '<svg viewBox="0 0 24 24" class="icon-svg"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
+            exam: '<svg viewBox="0 0 24 24" class="icon-svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',
+            job: '<svg viewBox="0 0 24 24" class="icon-svg"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
+            admission: '<svg viewBox="0 0 24 24" class="icon-svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
+            result: '<svg viewBox="0 0 24 24" class="icon-svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+            notice: '<svg viewBox="0 0 24 24" class="icon-svg"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+            admitcard: '<svg viewBox="0 0 24 24" class="icon-svg"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+        };
+
+        // ==========================================
+        // DATA ARCHITECTURE (Pre-loaded with 2026 Context)
+        // This array replaces a real-time database for this frontend build.
+        // ==========================================
+        const updatesData = [
+            // SCHOLARSHIPS (Including Bihar PMS)
+            {
+                id: "pms-bihar-2026",
+                category: "SCHOLARSHIP",
+                tags: ["BIHAR"],
+                title: "Bihar Post Matric Scholarship (PMS) 2026–27",
+                organization: "Government of Bihar",
+                status: "OPEN",
+                dateInfo: "Expected: Aug - Sep 2026",
+                eligibility: "BC/EBC & SC/ST Students of Bihar pursuing Post-Matric courses.",
+                description: "The official Bihar PMS portal for academic year 2026-27. Ensure your Income, Caste, and Residence certificates are updated before applying. Aadhar seeding with bank account is mandatory.",
+                officialUrl: "https://pmsonline.bih.nic.in",
+                verified: true,
+                highlight: true // Triggers premium UI card
+            },
+            {
+                id: "nsp-2026",
+                category: "SCHOLARSHIP",
+                tags: [],
+                title: "National Scholarship Portal (NSP) 2026–27",
+                organization: "Government of India",
+                status: "UPCOMING",
+                dateInfo: "Expected: July 2026",
+                eligibility: "Pre-Matric, Post-Matric, and Merit-cum-Means students nationwide.",
+                description: "Central scheme applications for minorities, disabled students, and specialized professional courses. Check the portal for specific scheme guidelines and deadlines.",
+                officialUrl: "https://scholarships.gov.in",
+                verified: true,
+                highlight: false
+            },
+            {
+                id: "nmmss-2026",
+                category: "SCHOLARSHIP",
+                tags: [],
+                title: "National Means-cum-Merit Scholarship (NMMSS) 2026",
+                organization: "Ministry of Education",
+                status: "OPEN",
+                dateInfo: "Check state-specific closing dates",
+                eligibility: "Class 8 students appearing for the selection test.",
+                description: "Financial assistance awarded to meritorious students of economically weaker sections to arrest their drop out at class VIII and encourage them to continue study at secondary stage.",
+                officialUrl: "https://scholarships.gov.in",
+                verified: true,
+                highlight: false
+            },
+            
+            // EXAMS & ADMISSIONS
+            {
+                id: "jee-main-2027",
+                category: "EXAM",
+                tags: ["ADMISSION"],
+                title: "JEE Main 2027 Session 1 Registration",
+                organization: "National Testing Agency (NTA)",
+                status: "UPCOMING",
+                dateInfo: "Expected: Nov 2026",
+                eligibility: "Class 12 appearing/passed students (PCM).",
+                description: "Joint Entrance Examination for B.Tech/B.E admissions in NITs, IIITs, and CFTIs. Registration for the January session will commence on the official NTA website.",
+                officialUrl: "https://jeemain.nta.ac.in",
+                verified: true,
+                highlight: false
+            },
+            {
+                id: "bihar-poly-2026",
+                category: "ADMISSION",
+                tags: ["EXAM", "BIHAR"],
+                title: "DCECE (PE/PM/PMM) Bihar Polytechnic 2026",
+                organization: "BCECEB",
+                status: "RESULT",
+                dateInfo: "Counselling Ongoing",
+                eligibility: "Class 10th / 12th passed students.",
+                description: "Diploma Certificate Entrance Competitive Examination for admission into Polytechnic (Engineering) and Para-Medical courses in Bihar government and private colleges.",
+                officialUrl: "https://bceceboard.bihar.gov.in",
+                verified: true,
+                highlight: true
+            },
+
+            // JOBS & RECRUITMENT
+            {
+                id: "ssc-cgl-2026",
+                category: "JOB",
+                tags: [],
+                title: "SSC CGL Notification 2026",
+                organization: "Staff Selection Commission",
+                status: "CLOSING",
+                dateInfo: "Last Date: See Notification",
+                eligibility: "Graduates in any discipline.",
+                description: "Combined Graduate Level Examination for Group B and Group C posts in various Ministries/Departments/Organizations of Government of India.",
+                officialUrl: "https://ssc.nic.in",
+                verified: true,
+                highlight: false
+            },
+            {
+                id: "rrb-alp-2026",
+                category: "JOB",
+                tags: [],
+                title: "RRB Assistant Loco Pilot (ALP) Recruitment",
+                organization: "Railway Recruitment Board",
+                status: "NOTICE",
+                dateInfo: "Exam Dates Announced",
+                eligibility: "Matriculation / SSLC plus ITI/Diploma/Degree in specified trades.",
+                description: "Official notice regarding CBT 1 exam dates and admit card release schedule has been published by RRB.",
+                officialUrl: "https://indianrailways.gov.in",
+                verified: true,
+                highlight: false
+            },
+            {
+                id: "bihar-police-2026",
+                category: "JOB",
+                tags: ["BIHAR"],
+                title: "Bihar Police Constable Recruitment 2026",
+                organization: "CSBC Bihar",
+                status: "UPCOMING",
+                dateInfo: "Expected Late 2026",
+                eligibility: "Intermediate (10+2) passed candidates.",
+                description: "Upcoming recruitment drive for Constable rank in Bihar Police. Detailed notification will be released on the official CSBC portal.",
+                officialUrl: "https://csbc.bih.nic.in",
+                verified: true,
+                highlight: false
+            },
+
+            // RESULTS & ADMIT CARDS
+            {
+                id: "bseb-12-result-2026",
+                category: "RESULT",
+                tags: ["BIHAR"],
+                title: "BSEB Class 12 (Intermediate) Result 2026",
+                organization: "Bihar School Examination Board",
+                status: "RESULT",
+                dateInfo: "Declared (March 2026)",
+                eligibility: "N/A",
+                description: "Annual intermediate examination results for Arts, Science, and Commerce streams.",
+                officialUrl: "http://biharboardonline.bihar.gov.in",
+                verified: true,
+                highlight: false
+            },
+            {
+                id: "upsc-pre-admit-2026",
+                category: "ADMIT CARD",
+                tags: ["EXAM"],
+                title: "UPSC CSE Prelims Admit Card 2026",
+                organization: "Union Public Service Commission",
+                status: "OPEN",
+                dateInfo: "Download Available Now",
+                eligibility: "Registered Candidates",
+                description: "e-Admit cards for the Civil Services (Preliminary) Examination 2026 are available for download on the UPSC portal.",
+                officialUrl: "https://upsconline.nic.in",
+                verified: true,
+                highlight: false
+            }
+        ];
+
+        // ==========================================
+        // FRONTEND RENDERING LOGIC
+        // ==========================================
+        const contentArea = document.getElementById('dynamic-content-area');
+        let currentFilter = 'ALL';
+        let searchQuery = '';
+
+        // Category Groupings for display order
+        const displayGroups = [
+            { id: 'highlight', title: 'Featured & Bihar Special', filterKey: 'BIHAR' },
+            { id: 'scholarship', title: 'Scholarships & Schemes', filterKey: 'SCHOLARSHIP' },
+            { id: 'exam', title: 'Examinations & Admissions', filterKey: ['EXAM', 'ADMISSION'] },
+            { id: 'job', title: 'Government Jobs & Recruitment', filterKey: 'JOB' },
+            { id: 'other', title: 'Results, Admit Cards & Notices', filterKey: ['RESULT', 'ADMIT CARD', 'NOTICE'] }
+        ];
+
+        function initApp() {
+            // Display desktop elements if applicable
+            if (window.innerWidth > 1024) document.getElementById('desktop-bell').style.display = 'flex';
+            
+            // Set dynamic date
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('last-updated-text').innerText = `| Updated: ${today.toLocaleDateString('en-US', options)}`;
+            
+            renderUpdates();
+        }
+
+        // --- FILTERING & SEARCH ---
+        window.setFilter = function(filterValue) {
+            currentFilter = filterValue;
+            
+            // Update UI buttons
+            document.querySelectorAll('.filter-pill').forEach(pill => {
+                pill.classList.remove('active');
+                if(pill.innerText.trim() === filterValue) pill.classList.add('active');
+            });
+            
+            renderUpdates();
+        };
+
+        window.handleSearch = function() {
+            searchQuery = document.getElementById('main-search').value.toLowerCase();
+            renderUpdates();
+        };
+
+        // --- RENDERING ---
+        function renderUpdates() {
+            let html = '';
+            let hasVisibleCards = false;
+            
+            // Process data based on active filters/search
+            const filteredData = updatesData.filter(item => {
+                const matchesSearch = !searchQuery || 
+                                      item.title.toLowerCase().includes(searchQuery) || 
+                                      item.organization.toLowerCase().includes(searchQuery) ||
+                                      item.category.toLowerCase().includes(searchQuery);
+                                      
+                if (!matchesSearch) return false;
+                
+                if (currentFilter === 'ALL') return true;
+                if (currentFilter === 'BIHAR') return item.tags.includes('BIHAR');
+                return item.category === currentFilter;
+            });
+
+            if (filteredData.length === 0) {
+                // EMPTY STATE
+                contentArea.innerHTML = `
+                    <div class="empty-state">
+                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <h3 style="font-size: 20px; margin-bottom: 12px;">No Updates Found</h3>
+                        <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto;">No verified updates match your current filter or search criteria. Please try a different category.</p>
+                        <button class="btn btn-outline" style="margin-top: 24px;" onclick="setFilter('ALL'); document.getElementById('main-search').value=''; handleSearch();">Clear Filters</button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render by Groups if viewing ALL or BIHAR
+            if (currentFilter === 'ALL' || currentFilter === 'BIHAR') {
+                displayGroups.forEach(group => {
+                    const groupItems = filteredData.filter(item => {
+                        if (group.id === 'highlight') return item.highlight || item.tags.includes('BIHAR');
+                        
+                        // Avoid duplicates in groups
+                        if(item.highlight || item.tags.includes('BIHAR')) return false; 
+                        
+                        if (Array.isArray(group.filterKey)) return group.filterKey.includes(item.category);
+                        return item.category === group.filterKey;
+                    });
+
+                    if (groupItems.length > 0) {
+                        html += `
+                            <section class="reveal active">
+                                <h2 class="sub-heading">${group.title}</h2>
+                                <div class="grid-3">
+                                    ${groupItems.map(item => generateCardHTML(item)).join('')}
+                                </div>
+                            </section>
+                        `;
+                    }
+                });
+            } else {
+                // Flat grid for specific category filter
+                html += `
+                    <section class="reveal active">
+                        <h2 class="sub-heading">${currentFilter} UPDATES</h2>
+                        <div class="grid-3">
+                            ${filteredData.map(item => generateCardHTML(item)).join('')}
+                        </div>
+                    </section>
+                `;
+            }
+
+            contentArea.innerHTML = html;
+            
+            // Re-apply 3D listeners for desktop
+            apply3DHoverEffects();
+        }
+
+        function generateCardHTML(item) {
+            const iconKey = item.category.toLowerCase().replace(' ', '');
+            const iconSvg = icons[iconKey] || icons.notice; // Fallback
+            
+            const highlightClass = item.highlight ? 'card-highlight' : '';
+            const verifiedUI = item.verified 
+                ? `<div class="uc-verified"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Verified Official Source</div>`
+                : `<div class="uc-unverified"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Source verification pending</div>`;
+
+            // Truncate description for card
+            const shortDesc = item.description.length > 100 ? item.description.substring(0, 100) + '...' : item.description;
+
+            return `
+                <div class="glass-panel card-3d interactive update-card ${highlightClass}" onclick="openModal('${item.id}')">
+                    <div class="uc-header">
+                        <div class="uc-icon">${iconSvg}</div>
+                        <span class="status-badge status-${item.status}">${item.status}</span>
+                    </div>
+                    
+                    <span class="uc-org">${item.organization}</span>
+                    <h4 class="uc-title">${item.title}</h4>
+                    <p class="uc-desc">${shortDesc}</p>
+                    
+                    <ul class="uc-meta-list">
+                        <li>
+                            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <span>${item.dateInfo}</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="uc-footer">
+                        ${verifiedUI}
+                        <button class="btn btn-outline" style="width:100%; pointer-events:none;">VIEW DETAILS</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // MODAL LOGIC (Detail View & Official Linking)
+        // ==========================================
+        const modalOverlay = document.getElementById('detail-modal');
+        const modalContent = document.getElementById('modal-content-container');
+
+        window.openModal = function(id) {
+            const item = updatesData.find(i => i.id === id);
+            if (!item) return;
+
+            const iconKey = item.category.toLowerCase().replace(' ', '');
+            const iconSvg = icons[iconKey] || icons.notice;
+
+            const btnText = getActionText(item.category);
+            
+            // Secure official link rendering
+            let linkButtonHTML = '';
+            if (item.officialUrl && item.verified) {
+                linkButtonHTML = `<a href="${item.officialUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width:100%; padding:14px; font-size:15px;">${btnText} <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
+            } else {
+                linkButtonHTML = `<div style="text-align:center; padding:16px; background:rgba(255,255,255,0.05); border-radius:12px; border:1px dashed rgba(255,255,255,0.2); font-size:13px; color:var(--text-muted);">Official link will be added after verification.</div>`;
+            }
+
+            modalContent.innerHTML = `
+                <div class="modal-header-bg">
+                    <span class="status-badge status-${item.status}" style="margin-bottom:12px; display:inline-block;">${item.status}</span>
+                    <h2 style="font-size: 24px; margin-bottom: 8px; color: #fff;">${item.title}</h2>
+                    <span style="font-size:14px; color:var(--brand-primary); font-weight:700;">${item.organization}</span>
+                </div>
+                
+                <div style="display:flex; gap:12px; margin-bottom:24px;">
+                    <div style="background:rgba(255,255,255,0.05); padding:12px 16px; border-radius:12px; flex:1;">
+                        <span style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px; text-transform:uppercase;">Category</span>
+                        <span style="font-weight:600; font-size:14px;">${item.category}</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.05); padding:12px 16px; border-radius:12px; flex:1;">
+                        <span style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px; text-transform:uppercase;">Important Date</span>
+                        <span style="font-weight:600; font-size:14px;">${item.dateInfo}</span>
+                    </div>
+                </div>
+
+                <div class="modal-desc-box">
+                    <strong>Eligibility/Requirements:</strong><br>${item.eligibility}<br><br>
+                    <strong>Details:</strong><br>${item.description}
+                </div>
+
+                <div class="modal-source-box">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--brand-primary)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                    <div>
+                        <span style="display:block; font-size:14px; font-weight:700; color:#fff;">Verified Official Source</span>
+                        <span style="font-size:12px; color:var(--text-muted);">This information is linked directly to the official issuing authority.</span>
+                    </div>
+                </div>
+
+                ${linkButtonHTML}
+            `;
+            
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        };
+
+        window.closeModal = function() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+        function getActionText(category) {
+            switch(category) {
+                case 'SCHOLARSHIP': return 'APPLY NOW / PORTAL';
+                case 'JOB': return 'OFFICIAL NOTIFICATION';
+                case 'RESULT': return 'VIEW RESULT';
+                case 'ADMIT CARD': return 'DOWNLOAD ADMIT CARD';
+                default: return 'VISIT OFFICIAL WEBSITE';
+            }
+        }
+
+        // Close modal on Escape key or clicking outside
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
+        });
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        // Prevent links from doing default actions if they don't have href
+        document.querySelectorAll('a').forEach(el => {
+            if(el.getAttribute('href') === '#') el.addEventListener('click', e => e.preventDefault());
+        });
+
+        // Desktop 3D Hover Effect
+        function apply3DHoverEffects() {
+            if (window.innerWidth > 768 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                const cards = document.querySelectorAll('.card-3d.interactive');
+                cards.forEach(card => {
+                    const newCard = card.cloneNode(true);
+                    card.parentNode.replaceChild(newCard, card); // Remove old listeners
+                    
+                    newCard.addEventListener('mousemove', e => {
+                        const rect = newCard.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        newCard.style.setProperty('--mouse-x', `${x}px`);
+                        newCard.style.setProperty('--mouse-y', `${y}px`);
+                        
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
+                        const rotateX = ((y - centerY) / centerY) * -4;
+                        const rotateY = ((x - centerX) / centerX) * 4;
+                        newCard.style.transform = `perspective(1000px) scale(1.02) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+                    });
+                    
+                    newCard.addEventListener('mouseleave', () => {
+                        newCard.style.transform = ``;
+                    });
+                });
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', initApp);
+
+    </script>
+</body>
+</html>

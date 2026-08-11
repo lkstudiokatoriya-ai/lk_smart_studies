@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0f1c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Teacher Workspace - LK SMART STUDIES</title>
+    
+    <style>
+        /* ==================================================
+           CSS VARIABLES & RESET (MATCHING BRAND SYSTEM)
+           ================================================== */
+        :root {
+            --bg-dark: #0a0f1c;
+            --brand-primary: #3a86ff;
+            --brand-secondary: #8338ec;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-card: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-border-hover: rgba(255, 255, 255, 0.25);
+            --text-main: #ffffff;
+            --text-muted: #a0a5b5;
+            --danger: #ff4d6d;
+            --warning: #ffb703;
+            --success: #2ec4b6;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            
+            --sidebar-width: 260px;
+            --gradient-primary: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            --gradient-text: linear-gradient(135deg, #ffffff 0%, #b0c4de 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body, html { width: 100%; background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; scroll-behavior: smooth; }
+
+        /* ==================================================
+           APP LAYOUT (SIDEBAR + MAIN CONTENT)
+           ================================================== */
+        .app-container { display: flex; min-height: 100vh; width: 100%; position: relative; z-index: 2; }
+
+        .sidebar {
+            width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0;
+            background: rgba(10, 15, 28, 0.8); backdrop-filter: blur(20px); border-right: 1px solid var(--glass-border);
+            padding: calc(30px + var(--safe-top)) 20px 30px; display: none; flex-direction: column; z-index: 100;
+        }
+
+        .brand-logo { font-size: 18px; font-weight: 800; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; letter-spacing: 1px; margin-bottom: 50px; }
+        .brand-logo svg { width: 24px; height: 24px; color: var(--brand-primary); }
+
+        .side-nav { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .side-link {
+            display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px;
+            color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 15px;
+            transition: all 0.3s;
+        }
+        .side-link svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
+        .side-link:hover { background: var(--glass-card); color: #fff; }
+        .side-link.active { background: rgba(58, 134, 255, 0.1); color: var(--brand-primary); border: 1px solid rgba(58, 134, 255, 0.2); }
+
+        .main-content { flex-grow: 1; width: 100%; padding-bottom: calc(80px + var(--safe-bottom)); }
+
+        @media (min-width: 1024px) {
+            .sidebar { display: flex; }
+            .main-content { margin-left: var(--sidebar-width); padding-bottom: 40px; }
+        }
+
+        /* ==================================================
+           APP HEADER & STATUS
+           ================================================== */
+        .app-header {
+            position: sticky; top: 0; z-index: 90; height: calc(70px + var(--safe-top));
+            background: rgba(10, 15, 28, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border); padding: var(--safe-top) 20px 0;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-title { font-size: 18px; font-weight: 700; display: none; }
+        
+        .mobile-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; color: #fff; text-decoration: none; }
+        .mobile-brand svg { width: 20px; height: 20px; color: var(--brand-primary); }
+
+        @media (min-width: 1024px) {
+            .mobile-brand { display: none; }
+            .header-title { display: block; }
+        }
+
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        
+        .status-badge {
+            display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 20px;
+            background: rgba(255, 77, 109, 0.1); border: 1px solid rgba(255, 77, 109, 0.3);
+            color: var(--danger); font-size: 12px; font-weight: 700; text-transform: uppercase;
+        }
+        .status-dot { width: 8px; height: 8px; background: var(--danger); border-radius: 50%; box-shadow: 0 0 10px var(--danger); }
+        
+        .action-btn {
+            width: 40px; height: 40px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border);
+            color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+        }
+        .action-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+        .icon-svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ==================================================
+           AMBIENT BACKGROUND
+           ================================================== */
+        .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; overflow: hidden; perspective: 1000px; }
+        .glow { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.3; animation: pulseBg 12s infinite alternate ease-in-out; }
+        .glow-1 { top: -10%; right: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--brand-secondary) 0%, transparent 60%); }
+        .glow-2 { bottom: -20%; left: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--brand-primary) 0%, transparent 60%); animation-delay: -5s; }
+
+        @keyframes pulseBg { 0% { transform: scale(1); opacity: 0.2; } 100% { transform: scale(1.2); opacity: 0.4; } }
+
+        /* ==================================================
+           UI COMPONENTS & TYPOGRAPHY
+           ================================================== */
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        section { margin-bottom: 60px; position: relative; }
+        
+        .section-title { font-size: clamp(24px, 4vw, 32px); font-weight: 800; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+        .section-subtitle { font-size: clamp(14px, 3vw, 16px); color: var(--text-muted); margin-bottom: 30px; font-weight: 500; }
+        .sub-heading { font-size: 20px; font-weight: 700; margin-bottom: 24px; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .sub-heading::before { content: ''; width: 4px; height: 16px; background: var(--gradient-primary); border-radius: 2px; }
+
+        .glass-panel { background: var(--glass-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); }
+        
+        /* 3D Card System */
+        .card-3d { position: relative; transform-style: preserve-3d; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .card-3d.interactive { cursor: pointer; overflow: hidden; }
+        .card-3d.interactive::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.08), transparent 40%); z-index: 1; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+        .card-3d.interactive:hover { transform: translateY(-6px) scale(1.02); border-color: var(--glass-border-hover); box-shadow: 0 15px 35px -10px rgba(0,0,0,0.6), 0 0 20px rgba(58,134,255,0.15), inset 0 1px 0 rgba(255,255,255,0.2); }
+        .card-3d.interactive:hover::before { opacity: 1; }
+        .card-3d.interactive:active { transform: translateY(-2px) scale(0.98); }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; font-weight: 600; border-radius: 12px; border: none; cursor: pointer; transition: all 0.3s; transform-style: preserve-3d; font-size: 14px; gap: 8px; }
+        .btn-primary { background: var(--gradient-primary); color: #fff; box-shadow: 0 4px 15px rgba(58, 134, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(58, 134, 255, 0.5); }
+        .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: #fff; }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+
+        /* Forms */
+        .form-group { margin-bottom: 20px; transform: translateZ(10px); }
+        .form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .form-control { width: 100%; padding: 16px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border); border-radius: 12px; color: #fff; font-size: 15px; outline: none; transition: all 0.3s; }
+        .form-control:focus { background: rgba(255, 255, 255, 0.08); border-color: var(--brand-primary); box-shadow: 0 0 15px rgba(58,134,255,0.1); }
+        textarea.form-control { resize: vertical; min-height: 120px; }
+        
+        .grid-2 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        @media (min-width: 768px) { .grid-2 { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1024px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
+
+        /* ==================================================
+           HERO & QUICK DASHBOARD
+           ================================================== */
+        .hero-section { text-align: center; padding: 40px 0; }
+        .hero-title { font-size: clamp(32px, 5vw, 48px); font-weight: 800; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; }
+        
+        .dash-card { padding: 24px; display: flex; flex-direction: column; align-items: center; text-align: center; height: 100%; }
+        .dash-icon { width: 56px; height: 56px; border-radius: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--brand-primary); transform: translateZ(20px); transition: all 0.3s; }
+        .card-3d.interactive:hover .dash-icon { transform: translateZ(35px) scale(1.1); background: var(--gradient-primary); color: #fff; border-color: transparent; }
+        .dash-card h4 { font-size: 16px; transform: translateZ(15px); }
+
+        /* ==================================================
+           WORK SPACE MODULES (Login, Upload, Editor, etc.)
+           ================================================== */
+        
+        /* Drag & Drop Area */
+        .upload-zone { border: 2px dashed rgba(255,255,255,0.2); border-radius: 16px; padding: 40px 20px; text-align: center; background: rgba(255,255,255,0.02); transition: all 0.3s; cursor: pointer; transform: translateZ(15px); margin-bottom: 24px; }
+        .upload-zone:hover { border-color: var(--brand-primary); background: rgba(58, 134, 255, 0.05); }
+        .upload-icon { color: var(--brand-primary); margin-bottom: 16px; }
+
+        /* Resource Cards */
+        .resource-card { padding: 20px; display: flex; flex-direction: column; height: 100%; }
+        .res-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .res-badge { padding: 4px 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; border-radius: 6px; letter-spacing: 0.5px; }
+        .badge-pending { background: rgba(255, 183, 3, 0.15); color: var(--warning); border: 1px solid rgba(255, 183, 3, 0.3); }
+        .badge-approved { background: rgba(46, 196, 182, 0.15); color: var(--success); border: 1px solid rgba(46, 196, 182, 0.3); }
+        .res-title { font-size: 16px; margin-bottom: 8px; line-height: 1.4; }
+        .res-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; flex-grow: 1; }
+        .res-actions { display: flex; gap: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; }
+        .action-icon-btn { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+        .action-icon-btn:hover { color: #fff; background: rgba(255,255,255,0.15); }
+
+        /* Rich Text Editor Mockup */
+        .editor-toolbar { display: flex; gap: 8px; padding: 12px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--glass-border); flex-wrap: wrap; }
+        .editor-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+        .editor-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .editor-body { padding: 20px; min-height: 200px; color: #fff; font-size: 15px; }
+
+        /* Profile Layout */
+        .profile-header { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; transform: translateZ(15px); }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 2px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; }
+        .profile-avatar:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+
+        /* ==================================================
+           CUSTOM ERROR / UNAVAILABLE MODAL (CRITICAL)
+           ================================================== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 8, 17, 0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;
+            opacity: 0; visibility: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        
+        .error-modal {
+            background: rgba(20, 25, 40, 0.95); border: 1px solid rgba(255, 77, 109, 0.3);
+            border-radius: 24px; padding: 40px 30px; text-align: center; max-width: 400px; width: 100%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 40px rgba(255, 77, 109, 0.1);
+            transform: scale(0.9) translateZ(-100px); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-style: preserve-3d; perspective: 1000px;
+        }
+        .modal-overlay.active .error-modal { transform: scale(1) translateZ(0); }
+
+        .modal-icon {
+            width: 64px; height: 64px; border-radius: 50%; background: rgba(255, 77, 109, 0.1);
+            border: 2px solid rgba(255, 77, 109, 0.3); color: var(--danger);
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 24px auto;
+            transform: translateZ(30px); box-shadow: 0 0 20px rgba(255, 77, 109, 0.2);
+        }
+        .error-modal h3 { font-size: 20px; margin-bottom: 12px; color: #fff; transform: translateZ(20px); }
+        .error-modal p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; transform: translateZ(10px); }
+        
+        /* Modal Action Button */
+        .btn-modal {
+            background: linear-gradient(135deg, var(--danger), #c9184a); color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            width: 100%;
+        }
+        .btn-modal:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 77, 109, 0.5); }
+
+        /* ==================================================
+           MOBILE BOTTOM NAVIGATION
+           ================================================== */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(10, 15, 28, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border); z-index: 100;
+            padding-bottom: var(--safe-bottom);
+            display: flex; justify-content: space-around; align-items: center; height: calc(70px + var(--safe-bottom));
+        }
+        @media (min-width: 1024px) { .bottom-nav { display: none; } }
+        
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 11px; gap: 4px; width: 20%; height: 100%; transition: color 0.2s; }
+        .nav-item.active { color: var(--brand-primary); }
+        .nav-item svg { width: 22px; height: 22px; stroke-width: 2; }
+        .nav-item.active svg { fill: rgba(58, 134, 255, 0.2); }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) { 
+            .reveal { opacity: 1; transform: none; transition: none; } 
+            .card-3d { transition: none; transform: none !important; } 
+            .glow { animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <!-- CUSTOM ERROR MODAL (Hidden by default) -->
+    <div class="modal-overlay" id="unavailable-modal">
+        <div class="error-modal">
+            <div class="modal-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h3 id="modal-title">FEATURE NOT AVAILABLE YET</h3>
+            <p id="modal-desc">This feature is currently unavailable because the real-time database and backend services have not been connected yet.<br><br>The interface is ready. Backend integration will activate this feature later.</p>
+            <button class="btn btn-modal" onclick="closeModal()">UNDERSTOOD</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        
+        <!-- DESKTOP SIDEBAR -->
+        <aside class="sidebar">
+            <a href="#" class="brand-logo">
+                <svg viewBox="0 0 24 24" class="icon-svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                LK SMART STUDIES
+            </a>
+            
+            <nav class="side-nav">
+                <a href="#" class="side-link">
+                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Home
+                </a>
+                <a href="#" class="side-link">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                    Student Hub
+                </a>
+                <a href="#" class="side-link active">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    Teacher Workspace
+                </a>
+                <a href="#" class="side-link" onclick="showUnavailable('Notifications', 'The notification system is not connected yet.')">
+                    <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    Notifications
+                </a>
+                <a href="#" class="side-link" onclick="showUnavailable('Settings', 'Teacher settings database is pending.')">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Settings
+                </a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            
+            <!-- APP HEADER -->
+            <header class="app-header">
+                <div class="header-left">
+                    <a href="#" class="mobile-brand">
+                        <svg viewBox="0 0 24 24" class="icon-svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        LK SMART STUDIES
+                    </a>
+                    <h2 class="header-title">Teacher Workspace</h2>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="status-badge">
+                        <div class="status-dot"></div>
+                        <span style="display:none;" id="desktop-status-text">Backend Not Connected</span>
+                    </div>
+                    <button class="action-btn" aria-label="Search" onclick="showUnavailable('Search', 'Search index is not initialized.')"><svg class="icon-svg"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+                    <button class="action-btn" aria-label="Notifications" onclick="showUnavailable('Notifications', 'No real-time connection.')"><svg class="icon-svg"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                    <button class="action-btn" aria-label="Profile" onclick="document.getElementById('profile-section').scrollIntoView()"><svg class="icon-svg"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+                </div>
+            </header>
+
+            <div class="container">
+                
+                <!-- HERO SECTION -->
+                <section class="hero-section reveal">
+                    <h1 class="hero-title">Teacher Workspace</h1>
+                    <p class="section-subtitle" style="margin: 0 auto; max-width: 600px;">Create, organize and share learning resources.</p>
+                </section>
+
+                <!-- TEACHER LOGIN (Visual Demo Section) -->
+                <section class="reveal" id="login-section">
+                    <div class="glass-panel card-3d" style="max-width: 500px; margin: 0 auto; padding: 40px 30px;">
+                        <h2 class="sub-heading" style="justify-content:center; margin-top:0;">Teacher Login</h2>
+                        <p style="text-align:center; color:var(--text-muted); font-size:13px; margin-bottom:24px;">Please authenticate to access real-time database features.</p>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email / Teacher ID</label>
+                            <input type="text" class="form-control" placeholder="Enter your registered ID">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" placeholder="••••••••">
+                        </div>
+                        
+                        <div style="text-align:right; margin-bottom: 24px;">
+                            <a href="#" onclick="showUnavailable('Password Reset', 'Authentication service is not connected.')" style="color:var(--brand-primary); font-size:13px; text-decoration:none;">Forgot Password?</a>
+                        </div>
+                        
+                        <button class="btn btn-primary" style="width:100%;" onclick="teacherLogin()">SECURE LOGIN</button>
+                    </div>
+                </section>
+
+                <!-- TEACHER DASHBOARD (Quick Links) -->
+                <section class="reveal">
+                    <h2 class="section-title">Teacher Dashboard</h2>
+                    <p class="section-subtitle">Manage your digital classroom resources.</p>
+                    
+                    <div class="grid-4">
+                        <div class="glass-panel card-3d interactive dash-card" onclick="document.getElementById('upload-section').scrollIntoView()">
+                            <div class="dash-icon"><svg class="icon-svg"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                            <h4>Upload PDF</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive dash-card" onclick="document.getElementById('resources-section').scrollIntoView()">
+                            <div class="dash-icon" style="color:var(--brand-secondary)"><svg class="icon-svg"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+                            <h4>My Resources</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive dash-card" onclick="document.getElementById('content-section').scrollIntoView()">
+                            <div class="dash-icon" style="color:#ffb703"><svg class="icon-svg"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+                            <h4>Write Content</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive dash-card" onclick="document.getElementById('announcement-section').scrollIntoView()">
+                            <div class="dash-icon" style="color:#2ec4b6"><svg class="icon-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                            <h4>Announcements</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive dash-card" onclick="showUnavailable('Teacher Notes', 'Private notes storage is pending DB connection.')">
+                            <div class="dash-icon"><svg class="icon-svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                            <h4>Teacher Notes</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive dash-card" onclick="document.getElementById('profile-section').scrollIntoView()">
+                            <div class="dash-icon"><svg class="icon-svg"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                            <h4>Profile</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive dash-card" onclick="showUnavailable('Notifications', 'Notification websocket is offline.')">
+                            <div class="dash-icon"><svg class="icon-svg"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+                            <h4>Notifications</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive dash-card" onclick="showUnavailable('Settings', 'Settings API not configured.')">
+                            <div class="dash-icon"><svg class="icon-svg"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+                            <h4>Settings</h4>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- UPLOAD PDF SECTION -->
+                <section class="reveal" id="upload-section">
+                    <h2 class="sub-heading">Upload PDF Resource</h2>
+                    <div class="glass-panel card-3d" style="padding: 30px;">
+                        
+                        <div class="upload-zone" onclick="showUnavailable('File Selection', 'File storage bucket is not attached yet.')">
+                            <svg class="icon-svg upload-icon" style="width:48px;height:48px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <h3 style="font-size:18px; margin-bottom:8px;">Drag & Drop PDF here</h3>
+                            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">or click to browse from your device</p>
+                            <button class="btn btn-outline" style="pointer-events:none;">Choose PDF File</button>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">PDF Title</label>
+                                <input type="text" class="form-control" placeholder="e.g. Chapter 4 Physics Notes">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Subject</label>
+                                <input type="text" class="form-control" placeholder="e.g. Physics">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Category</label>
+                                <select class="form-control" style="appearance: none;">
+                                    <option>Select Category</option>
+                                    <option>Notes</option>
+                                    <option>Previous Year Question (PYQ)</option>
+                                    <option>Model Paper</option>
+                                    <option>Important Questions (VVI)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Class / Semester</label>
+                                <input type="text" class="form-control" placeholder="e.g. Class 12 / Sem 3">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description (Optional)</label>
+                            <textarea class="form-control" placeholder="Brief description of the material..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Tags (Comma separated)</label>
+                            <input type="text" class="form-control" placeholder="thermodynamics, revision, science">
+                        </div>
+
+                        <div style="margin-top: 30px; display:flex; justify-content:flex-end;">
+                            <button class="btn btn-primary" onclick="uploadPDF()">
+                                <svg class="icon-svg" style="width:18px;height:18px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                UPLOAD PDF
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MY RESOURCES SECTION -->
+                <section class="reveal" id="resources-section">
+                    <h2 class="sub-heading">My Resources</h2>
+                    <p class="section-subtitle" style="margin-top:-16px;">Manage previously uploaded study materials.</p>
+                    
+                    <div class="grid-3">
+                        
+                        <div class="glass-panel card-3d resource-card">
+                            <div class="res-header">
+                                <span class="res-badge badge-approved">Approved</span>
+                                <svg class="icon-svg" style="color:var(--brand-primary)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            </div>
+                            <h4 class="res-title">Calculus Formulas Complete</h4>
+                            <p class="res-meta">Mathematics • Class 12<br>Uploaded: 2 days ago</p>
+                            <div class="res-actions">
+                                <button class="action-icon-btn" title="View" onclick="showUnavailable('View PDF', 'File storage not connected.')"><svg class="icon-svg" style="width:16px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                                <button class="action-icon-btn" title="Edit" onclick="showUnavailable('Edit Resource', 'Database update API pending.')"><svg class="icon-svg" style="width:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                                <button class="action-icon-btn" title="Delete" style="color:var(--danger);" onclick="deleteResource()"><svg class="icon-svg" style="width:16px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel card-3d resource-card">
+                            <div class="res-header">
+                                <span class="res-badge badge-pending">Pending Admin</span>
+                                <svg class="icon-svg" style="color:var(--warning)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            </div>
+                            <h4 class="res-title">Physics Mock Test 1</h4>
+                            <p class="res-meta">Physics • Model Paper<br>Uploaded: Today</p>
+                            <div class="res-actions">
+                                <button class="action-icon-btn" title="View" onclick="showUnavailable('View PDF', 'File storage not connected.')"><svg class="icon-svg" style="width:16px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                                <button class="action-icon-btn" title="Edit" onclick="showUnavailable('Edit Resource', 'Database update API pending.')"><svg class="icon-svg" style="width:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                                <button class="action-icon-btn" title="Delete" style="color:var(--danger);" onclick="deleteResource()"><svg class="icon-svg" style="width:16px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- WRITE CONTENT SECTION -->
+                <section class="reveal" id="content-section">
+                    <h2 class="sub-heading">Write Content</h2>
+                    <div class="glass-panel card-3d" style="overflow: hidden;">
+                        
+                        <div style="padding: 20px; border-bottom: 1px solid var(--glass-border);">
+                            <input type="text" class="form-control" placeholder="Article / Note Title" style="background:transparent; border:none; font-size:20px; font-weight:700; padding:0; box-shadow:none;">
+                        </div>
+                        
+                        <!-- Dummy Editor Toolbar -->
+                        <div class="editor-toolbar">
+                            <button class="editor-btn" onclick="showUnavailable('Editor Tool', 'Rich text engine not loaded.')"><b>B</b></button>
+                            <button class="editor-btn" onclick="showUnavailable('Editor Tool', 'Rich text engine not loaded.')"><i>I</i></button>
+                            <button class="editor-btn" onclick="showUnavailable('Editor Tool', 'Rich text engine not loaded.')"><u>U</u></button>
+                            <span style="color:var(--glass-border);">|</span>
+                            <button class="editor-btn" onclick="showUnavailable('Editor Tool', 'Rich text engine not loaded.')"><svg class="icon-svg" style="width:16px;height:16px;"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+                            <button class="editor-btn" onclick="showUnavailable('Editor Tool', 'Rich text engine not loaded.')"><svg class="icon-svg" style="width:16px;height:16px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/></svg></button>
+                            <button class="editor-btn" onclick="showUnavailable('Editor Tool', 'Rich text engine not loaded.')"><svg class="icon-svg" style="width:16px;height:16px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
+                        </div>
+                        
+                        <div class="editor-body" contenteditable="true" data-placeholder="Start writing your educational content here..."></div>
+                        
+                        <div style="padding: 20px; background: rgba(0,0,0,0.2); border-top: 1px solid var(--glass-border); display:flex; justify-content:flex-end; gap:12px;">
+                            <button class="btn btn-outline" onclick="publishContent('draft')">Save Draft</button>
+                            <button class="btn btn-primary" onclick="publishContent('publish')">Publish</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TEACHER ANNOUNCEMENT SECTION -->
+                <section class="reveal" id="announcement-section">
+                    <h2 class="sub-heading">Teacher Announcements</h2>
+                    <div class="glass-panel card-3d" style="padding: 30px;">
+                        <div class="form-group">
+                            <label class="form-label">Announcement Title</label>
+                            <input type="text" class="form-control" placeholder="e.g. Important Update for Class 10">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Audience</label>
+                            <select class="form-control" style="appearance: none;">
+                                <option>All Students</option>
+                                <option>My Classes Only</option>
+                                <option>Specific Subject Group</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-control" style="min-height: 80px;" placeholder="Type your announcement..."></textarea>
+                        </div>
+                        <div style="text-align:right;">
+                            <button class="btn btn-primary" onclick="publishAnnouncement()">
+                                <svg class="icon-svg" style="width:18px;height:18px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                Publish Announcement
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TEACHER PROFILE SECTION -->
+                <section class="reveal" id="profile-section">
+                    <h2 class="sub-heading">Teacher Profile</h2>
+                    <div class="glass-panel card-3d" style="padding: 30px;">
+                        
+                        <div class="profile-header" onclick="showUnavailable('Profile Photo', 'Image storage bucket is not attached.')">
+                            <div class="profile-avatar">
+                                <svg class="icon-svg" style="width:32px;height:32px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="font-size:18px; margin-bottom:4px;">Upload Photo</h3>
+                                <p style="font-size:13px; color:var(--text-muted);">Recommended: 500x500px square image.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" placeholder="Your Name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-control" placeholder="teacher@lksmartstudies.com">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Primary Subject</label>
+                                <input type="text" class="form-control" placeholder="e.g. Mathematics">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Qualifications</label>
+                                <input type="text" class="form-control" placeholder="e.g. M.Sc, B.Ed">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Teaching Experience & Bio</label>
+                            <textarea class="form-control" placeholder="A short description about your teaching background..."></textarea>
+                        </div>
+
+                        <div style="margin-top: 30px; display:flex; justify-content:flex-end; gap:12px;">
+                            <button class="btn btn-outline" onclick="saveProfile('update')">Update Profile</button>
+                            <button class="btn btn-primary" onclick="saveProfile('save')">Save Changes</button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION (Visual Only) -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item">
+            <svg class="icon-svg"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home
+        </a>
+        <a href="#" class="nav-item">
+            <svg class="icon-svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            Student
+        </a>
+        <a href="#" class="nav-item active">
+            <svg class="icon-svg"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            Teacher
+        </a>
+        <a href="#" class="nav-item">
+            <svg class="icon-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Updates
+        </a>
+        <a href="#" class="nav-item">
+            <svg class="icon-svg"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            More
+        </a>
+    </nav>
+
+    <!-- FRONTEND LOGIC & ARCHITECTURE -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Show status text on desktop
+            if (window.innerWidth >= 1024) {
+                document.getElementById('desktop-status-text').style.display = 'block';
+            }
+
+            // Prevent default form submissions and link clicks
+            document.querySelectorAll('a, button').forEach(el => {
+                if(!el.hasAttribute('onclick') && !el.classList.contains('action-btn')) {
+                    el.addEventListener('click', (e) => e.preventDefault());
+                }
+            });
+
+            // Intersection Observer for scroll animations
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!prefersReducedMotion) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                            obs.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.05, rootMargin: '0px 0px -50px 0px' });
+                document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            } else {
+                document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
+            }
+
+            // 3D Parallax Hover for Desktop Cards
+            if (window.innerWidth > 768 && !prefersReducedMotion) {
+                const cards = document.querySelectorAll('.card-3d.interactive');
+                cards.forEach(card => {
+                    card.addEventListener('mousemove', e => {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        card.style.setProperty('--mouse-x', `${x}px`);
+                        card.style.setProperty('--mouse-y', `${y}px`);
+                        
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
+                        const rotateX = ((y - centerY) / centerY) * -4;
+                        const rotateY = ((x - centerX) / centerX) * 4;
+                        card.style.transform = `perspective(1000px) scale(1.02) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = ``;
+                    });
+                });
+            }
+
+            // CSS trick for contenteditable placeholder
+            const editorBody = document.querySelector('.editor-body');
+            editorBody.addEventListener('focus', function() {
+                if(this.innerHTML === '') this.innerHTML = '<br>';
+            });
+            editorBody.addEventListener('blur', function() {
+                if(this.innerHTML === '<br>' || this.innerHTML.trim() === '') this.innerHTML = '';
+            });
+        });
+
+        // ==========================================
+        // CUSTOM ERROR / UNAVAILABLE SYSTEM
+        // ==========================================
+        const modalOverlay = document.getElementById('unavailable-modal');
+        const modalTitle = document.getElementById('modal-title');
+        
+        // Expose globally for inline onclick handlers
+        window.showUnavailable = function(featureName, customMessage) {
+            modalTitle.innerText = `${featureName.toUpperCase()} UNAVAILABLE`;
+            
+            if(customMessage) {
+                document.getElementById('modal-desc').innerHTML = `${customMessage}<br><br>The interface is ready. Backend integration will activate this feature later.`;
+            } else {
+                document.getElementById('modal-desc').innerHTML = `This feature is currently unavailable because the real-time database and backend services have not been connected yet.<br><br>The interface is ready. Backend integration will activate this feature later.`;
+            }
+
+            modalOverlay.classList.add('active');
+        };
+
+        window.closeModal = function() {
+            modalOverlay.classList.remove('active');
+        };
+
+        // Close modal on escape key or backdrop click
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                closeModal();
+            }
+        });
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        // ==========================================
+        // FUTURE-READY BACKEND ARCHITECTURE MOCKUPS
+        // ==========================================
+        
+        window.teacherLogin = function() {
+            // Future auth logic here (e.g. Firebase Auth, JWT)
+            showUnavailable('Teacher Login', 'Authentication service is not connected. User verification cannot proceed.');
+        };
+
+        window.uploadPDF = function() {
+            // Future file upload logic here (e.g. AWS S3, Firebase Storage)
+            showUnavailable('PDF Upload', 'File storage bucket is not attached yet. Cannot process file upload.');
+        };
+
+        window.deleteResource = function() {
+            // Future delete API call
+            showUnavailable('Delete Resource', 'Database deletion API is pending.');
+        };
+
+        window.publishContent = function(type) {
+            // type = 'draft' or 'publish'
+            // Future rich text saving logic
+            const action = type === 'draft' ? 'Saving Drafts' : 'Publishing Content';
+            showUnavailable(action, 'Database connection required to save formatted content.');
+        };
+
+        window.publishAnnouncement = function() {
+            // Future announcement broadcasting logic
+            showUnavailable('Publish Announcement', 'Real-time notification database is offline.');
+        };
+
+        window.saveProfile = function(type) {
+            // Future profile update logic
+            showUnavailable('Profile Update', 'User profile database is not configured.');
+        };
+    </script>
+</body>
+</html>
