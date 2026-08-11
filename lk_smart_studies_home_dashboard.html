@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0f1c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>LK SMART STUDIES - Dashboard</title>
+    
+    <style>
+        /* ==================================================
+           CSS VARIABLES & RESET (MATCHING INTRO)
+           ================================================== */
+        :root {
+            --bg-dark: #0a0f1c;
+            --brand-primary: #3a86ff;
+            --brand-secondary: #8338ec;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-card: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-border-hover: rgba(255, 255, 255, 0.25);
+            --text-main: #ffffff;
+            --text-muted: #a0a5b5;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            --gradient-text: linear-gradient(135deg, #ffffff 0%, #b0c4de 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100%;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            /* Padding for bottom nav on mobile */
+            padding-bottom: calc(70px + var(--safe-bottom)); 
+        }
+
+        @media (min-width: 768px) {
+            body { padding-bottom: 0; }
+        }
+
+        /* ==================================================
+           3D BACKGROUND AMBIENCE
+           ================================================== */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: pulseBg 10s infinite alternate ease-in-out;
+        }
+
+        .glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--brand-secondary) 0%, transparent 70%); }
+        .glow-2 { top: 40%; right: -20%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--brand-primary) 0%, transparent 60%); animation-delay: -5s; }
+        .glow-3 { bottom: -20%; left: 20%; width: 40vw; height: 40vw; background: radial-gradient(circle, var(--brand-secondary) 0%, transparent 70%); animation-delay: -2s; }
+
+        @keyframes pulseBg {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.3; }
+            100% { transform: scale(1.1) translate(2%, 2%); opacity: 0.5; }
+        }
+
+        /* ==================================================
+           TYPOGRAPHY & HEADINGS
+           ================================================== */
+        h1, h2, h3, h4 { font-weight: 700; letter-spacing: 0.5px; }
+        
+        .section-title {
+            font-size: clamp(24px, 5vw, 32px);
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        
+        .section-subtitle {
+            font-size: clamp(14px, 3vw, 16px);
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .sub-heading {
+            font-size: clamp(18px, 4vw, 22px);
+            color: #fff;
+            margin: 40px 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sub-heading::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        /* ==================================================
+           LAYOUT CONTAINERS
+           ================================================== */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+        @media (min-width: 768px) {
+            .grid-3 { grid-template-columns: repeat(3, 1fr); }
+            .grid-4 { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (min-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        /* ==================================================
+           UI COMPONENTS (GLASS & 3D)
+           ================================================== */
+        .glass-panel {
+            background: var(--glass-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .card-3d {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .card-3d::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.06), transparent 40%);
+            z-index: 1; pointer-events: none; opacity: 0; transition: opacity 0.3s;
+        }
+
+        .card-3d:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--glass-border-hover);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6), 0 0 20px rgba(58,134,255,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        
+        .card-3d:hover::before { opacity: 1; }
+        .card-3d:active { transform: translateY(-2px) scale(0.98); }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+            padding: 24px;
+            transform: translateZ(20px); /* 3D pop inner content */
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.05);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--brand-primary);
+            transform: translateZ(30px);
+            transition: transform 0.3s;
+        }
+
+        .card-3d:hover .icon-box { transform: translateZ(40px) scale(1.1); color: #fff; background: var(--gradient-primary); }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 12px 24px; font-weight: 600; border-radius: 12px;
+            border: none; cursor: pointer; transition: all 0.3s;
+            transform-style: preserve-3d;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary); color: #fff;
+            box-shadow: 0 4px 15px rgba(58, 134, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(58, 134, 255, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+        }
+
+        .badge {
+            display: inline-block; padding: 4px 8px; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; border-radius: 6px; letter-spacing: 0.5px;
+            background: rgba(58, 134, 255, 0.2); color: #8ab4f8;
+            border: 1px solid rgba(58, 134, 255, 0.3);
+        }
+
+        /* ==================================================
+           1. APP HEADER
+           ================================================== */
+        .app-header {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
+            background: rgba(10, 15, 28, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding-top: var(--safe-top);
+        }
+        
+        .header-content {
+            height: 70px; display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .brand-logo {
+            font-size: 20px; font-weight: 800; color: #fff; text-decoration: none;
+            letter-spacing: 1px; display: flex; align-items: center; gap: 8px;
+        }
+        
+        .brand-logo svg { width: 24px; height: 24px; color: var(--brand-primary); }
+
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        
+        .action-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        
+        .action-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+        .desktop-nav { display: none; }
+
+        @media (min-width: 1024px) {
+            .desktop-nav { display: flex; gap: 30px; }
+            .desktop-nav a { color: var(--text-muted); text-decoration: none; font-weight: 600; transition: color 0.3s; }
+            .desktop-nav a:hover { color: #fff; }
+        }
+
+        /* ==================================================
+           2. HERO / WELCOME AREA
+           ================================================== */
+        .hero { padding-top: 120px; text-align: center; }
+        .hero-card {
+            padding: 60px 30px; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .hero-title { font-size: clamp(32px, 6vw, 48px); margin-bottom: 16px; }
+        .hero-subtitle { color: var(--brand-primary); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+        
+        .hero-stats {
+            display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 30px;
+        }
+        .stat-pill {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; gap: 8px;
+            font-size: 14px; font-weight: 600; backdrop-filter: blur(5px);
+        }
+
+        /* ==================================================
+           3. SEARCH AREA
+           ================================================== */
+        .search-section { padding-top: 0; margin-top: -30px; }
+        .search-box {
+            position: relative; max-width: 700px; margin: 0 auto;
+            transform-style: preserve-3d;
+        }
+        .search-input {
+            width: 100%; padding: 20px 20px 20px 60px;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
+            border-radius: 16px; color: #fff; font-size: 16px; outline: none;
+            backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.08); border-color: var(--brand-primary);
+            box-shadow: 0 15px 40px rgba(58,134,255,0.2);
+        }
+        .search-icon {
+            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); width: 24px; height: 24px;
+        }
+
+        /* ==================================================
+           4. QUICK ACCESS (SCROLL X)
+           ================================================== */
+        .quick-access-scroll {
+            display: flex; gap: 16px; overflow-x: auto; padding-bottom: 20px;
+            scroll-snap-type: x mandatory; scrollbar-width: none;
+        }
+        .quick-access-scroll::-webkit-scrollbar { display: none; }
+        
+        .qa-card {
+            flex: 0 0 280px; scroll-snap-align: start;
+            display: flex; align-items: center; gap: 16px; padding: 20px;
+        }
+        .qa-card .icon-box { margin-bottom: 0; width: 50px; height: 50px; flex-shrink: 0; }
+        .qa-info h4 { font-size: 16px; margin-bottom: 4px; }
+        .qa-info p { font-size: 12px; color: var(--text-muted); }
+
+        /* ==================================================
+           5-10. STUDENT SECTION (MASSIVE)
+           ================================================== */
+        .student-section { position: relative; }
+        /* A subtle background indicator for the mega section */
+        .student-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(58, 134, 255, 0.03) 0%, transparent 100%);
+            border-top: 1px solid rgba(58, 134, 255, 0.1); z-index: -1;
+        }
+        
+        .subject-card { text-align: center; }
+        .subject-card .icon-box { margin: 0 auto 16px auto; width: 64px; height: 64px; }
+        .subject-card h4 { font-size: 18px; margin-bottom: 8px; }
+        .subject-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+
+        .pdf-card { display: flex; flex-direction: column; height: 100%; }
+        .pdf-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;}
+        .pdf-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; flex-grow: 1; }
+        .pdf-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+        .pdf-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;}
+
+        /* ==================================================
+           11. FAMILY SECTION
+           ================================================== */
+        .family-section {
+            background: linear-gradient(0deg, rgba(131, 56, 236, 0.03) 0%, transparent 100%);
+            border-top: 1px solid rgba(131, 56, 236, 0.1);
+        }
+        
+        .list-card {
+            display: flex; align-items: center; gap: 20px; padding: 20px;
+        }
+        .list-card .icon-box { margin: 0; }
+        
+        /* ==================================================
+           12. TEACHER SECTION
+           ================================================== */
+        .teacher-upload-zone {
+            border: 2px dashed rgba(255,255,255,0.2); text-align: center;
+            padding: 40px 20px; border-radius: 20px; background: rgba(255,255,255,0.02);
+            transition: all 0.3s; cursor: pointer;
+        }
+        .teacher-upload-zone:hover { border-color: var(--brand-primary); background: rgba(58, 134, 255, 0.05); }
+
+        /* ==================================================
+           18. HELP / FAQ (ACCORDION)
+           ================================================== */
+        .faq-item {
+            background: var(--glass-card); border: 1px solid var(--glass-border);
+            border-radius: 16px; margin-bottom: 16px; overflow: hidden;
+            transition: all 0.3s;
+        }
+        .faq-header {
+            padding: 20px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; font-weight: 600;
+        }
+        .faq-icon { transition: transform 0.3s; }
+        .faq-body {
+            padding: 0 20px; max-height: 0; opacity: 0; transition: all 0.3s ease-in-out;
+            color: var(--text-muted); font-size: 15px; line-height: 1.6;
+        }
+        .faq-item.active { border-color: var(--brand-primary); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .faq-item.active .faq-header { color: var(--brand-primary); }
+        .faq-item.active .faq-icon { transform: rotate(45deg); color: var(--brand-primary); }
+        .faq-item.active .faq-body { padding: 0 20px 20px 20px; max-height: 200px; opacity: 1; }
+
+        /* ==================================================
+           22. FOOTER
+           ================================================== */
+        .main-footer {
+            background: #050811; padding: 80px 0 40px 0; border-top: 1px solid var(--glass-border);
+            position: relative; z-index: 2; margin-bottom: calc(70px + var(--safe-bottom));
+        }
+        @media (min-width: 768px) { .main-footer { margin-bottom: 0; } }
+
+        .footer-grid { display: grid; grid-template-columns: 1fr; gap: 40px; margin-bottom: 60px; }
+        @media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+        
+        .footer-brand h3 { font-size: 24px; margin-bottom: 16px; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .footer-brand p { color: var(--text-muted); line-height: 1.6; max-width: 300px; }
+        .footer-col h4 { font-size: 16px; margin-bottom: 20px; color: #fff; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul li a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; font-size: 14px; }
+        .footer-col ul li a:hover { color: var(--brand-primary); }
+        
+        .footer-bottom {
+            text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted); font-size: 14px;
+        }
+
+        /* ==================================================
+           MOBILE BOTTOM NAVIGATION
+           ================================================== */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(10, 15, 28, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border); z-index: 100;
+            padding-bottom: var(--safe-bottom);
+            display: flex; justify-content: space-around; align-items: center; height: calc(70px + var(--safe-bottom));
+        }
+        @media (min-width: 768px) { .bottom-nav { display: none; } }
+        
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-muted); text-decoration: none; font-size: 11px; gap: 4px;
+            width: 20%; height: 100%; transition: color 0.2s;
+        }
+        .nav-item.active { color: var(--brand-primary); }
+        .nav-item svg { width: 22px; height: 22px; stroke-width: 2; }
+        .nav-item.active svg { fill: rgba(58, 134, 255, 0.2); }
+
+        /* ==================================================
+           ANIMATIONS (SCROLL REVEAL)
+           ================================================== */
+        .reveal { opacity: 0; transform: translateY(40px) translateZ(-50px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0) translateZ(0); }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1; transform: none; transition: none; }
+            .glow, .card-3d, .btn { animation: none !important; transition: none !important; transform: none !important; }
+        }
+
+        /* SVG Icon helper */
+        .icon-svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient 3D Background -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="glow glow-3"></div>
+    </div>
+
+    <!-- 1. APP HEADER -->
+    <header class="app-header">
+        <div class="container header-content">
+            <a href="#" class="brand-logo">
+                <svg viewBox="0 0 24 24" class="icon-svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                LK SMART STUDIES
+            </a>
+            
+            <nav class="desktop-nav">
+                <a href="#">Student</a>
+                <a href="#">Family</a>
+                <a href="#">Teacher</a>
+                <a href="#">Updates</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="action-btn" aria-label="Search" aria-disabled="true">
+                    <svg viewBox="0 0 24 24" class="icon-svg" style="width:18px;height:18px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
+                <button class="action-btn" aria-label="Notifications" aria-disabled="true">
+                    <svg viewBox="0 0 24 24" class="icon-svg" style="width:18px;height:18px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </button>
+                <!-- Desktop profile, acts as hamburger on mobile -->
+                <button class="action-btn" aria-label="Profile" aria-disabled="true">
+                    <svg viewBox="0 0 24 24" class="icon-svg" style="width:18px;height:18px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. HERO / WELCOME AREA -->
+    <section class="hero reveal">
+        <div class="container">
+            <div class="glass-panel hero-card card-3d">
+                <div class="card-content">
+                    <h2 class="hero-subtitle">Learn • Explore • Grow</h2>
+                    <h1 class="hero-title">Welcome to LK SMART STUDIES</h1>
+                    <p class="section-subtitle" style="margin-bottom: 0; font-size: 18px;">Everything you need for a smarter learning journey.</p>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-pill"><svg viewBox="0 0 24 24" class="icon-svg" style="width:16px;height:16px;stroke:var(--brand-primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> PDF Notes</div>
+                        <div class="stat-pill"><svg viewBox="0 0 24 24" class="icon-svg" style="width:16px;height:16px;stroke:var(--brand-secondary);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Important Resources</div>
+                        <div class="stat-pill"><svg viewBox="0 0 24 24" class="icon-svg" style="width:16px;height:16px;stroke:var(--brand-primary);"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Exam Prep</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. SEARCH AREA -->
+    <section class="search-section reveal">
+        <div class="container">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" class="icon-svg search-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="search-input" placeholder="Search notes, PDFs, subjects and resources..." aria-label="Search resources">
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. QUICK ACCESS -->
+    <section class="reveal">
+        <div class="container">
+            <div class="quick-access-scroll">
+                
+                <div class="glass-panel qa-card card-3d">
+                    <div class="icon-box"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
+                    <div class="qa-info"><h4>Student</h4><p>Study Materials & PDFs</p></div>
+                </div>
+
+                <div class="glass-panel qa-card card-3d">
+                    <div class="icon-box" style="color:var(--brand-secondary);"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                    <div class="qa-info"><h4>Family</h4><p>Parent Support Zone</p></div>
+                </div>
+
+                <div class="glass-panel qa-card card-3d">
+                    <div class="icon-box"><svg viewBox="0 0 24 24" class="icon-svg"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+                    <div class="qa-info"><h4>Teacher</h4><p>Educator Corner</p></div>
+                </div>
+
+                <div class="glass-panel qa-card card-3d">
+                    <div class="icon-box" style="color: #ff9f1c;"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                    <div class="qa-info"><h4>Latest Updates</h4><p>News & Notices</p></div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. MAIN STUDENT SECTION -->
+    <section class="student-section reveal">
+        <div class="student-bg"></div>
+        <div class="container">
+            <h2 class="section-title">Student Zone</h2>
+            <p class="section-subtitle">Everything you need for your studies.</p>
+
+            <!-- 6. SUBJECTS -->
+            <h3 class="sub-heading">Subjects</h3>
+            <div class="grid-4">
+                
+                <div class="glass-panel card-3d subject-card">
+                    <div class="card-content">
+                        <div class="icon-box"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+                        <h4>Mathematics</h4>
+                        <p>Notes, formulas & practice</p>
+                        <span class="badge">12 PDFs</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel card-3d subject-card">
+                    <div class="card-content">
+                        <div class="icon-box"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M9 3v4"/><path d="M15 3v4"/><path d="M4 11h16"/><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/></svg></div>
+                        <h4>Physics</h4>
+                        <p>Concepts & derivations</p>
+                        <span class="badge">8 PDFs</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel card-3d subject-card">
+                    <div class="card-content">
+                        <div class="icon-box"><svg viewBox="0 0 24 24" class="icon-svg"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+                        <h4>Chemistry</h4>
+                        <p>Reactions & equations</p>
+                        <span class="badge">15 PDFs</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel card-3d subject-card">
+                    <div class="card-content">
+                        <div class="icon-box"><svg viewBox="0 0 24 24" class="icon-svg"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg></div>
+                        <h4>Computer</h4>
+                        <p>Programming & logic</p>
+                        <span class="badge">20 PDFs</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 7. PDF NOTES -->
+            <h3 class="sub-heading" style="margin-top: 60px;">Latest PDF Notes</h3>
+            <div class="grid-3">
+                
+                <div class="glass-panel card-3d pdf-card">
+                    <div class="card-content">
+                        <div class="pdf-header">
+                            <span class="badge">Mathematics</span>
+                            <svg viewBox="0 0 24 24" class="icon-svg" style="color:var(--brand-primary)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        </div>
+                        <h4 class="pdf-title">Calculus Chapter 1 - Complete Handwritten Notes</h4>
+                        <p class="pdf-meta">Added: Today • 4.2 MB</p>
+                        <div class="pdf-footer">
+                            <span style="font-size:12px; color:var(--text-muted);">By LK Team</span>
+                            <button class="btn btn-primary" style="padding: 8px 16px; font-size: 13px;">Open PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel card-3d pdf-card">
+                    <div class="card-content">
+                        <div class="pdf-header">
+                            <span class="badge" style="color:var(--brand-secondary); border-color:rgba(131, 56, 236, 0.3); background:rgba(131, 56, 236, 0.1);">Physics</span>
+                            <svg viewBox="0 0 24 24" class="icon-svg" style="color:var(--brand-secondary)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        </div>
+                        <h4 class="pdf-title">Thermodynamics Quick Revision Sheet</h4>
+                        <p class="pdf-meta">Added: Yesterday • 2.1 MB</p>
+                        <div class="pdf-footer">
+                            <span style="font-size:12px; color:var(--text-muted);">By LK Team</span>
+                            <button class="btn btn-primary" style="padding: 8px 16px; font-size: 13px;">Open PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel card-3d pdf-card">
+                    <div class="card-content">
+                        <div class="pdf-header">
+                            <span class="badge">Computer</span>
+                            <svg viewBox="0 0 24 24" class="icon-svg" style="color:var(--brand-primary)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        </div>
+                        <h4 class="pdf-title">C++ Programming Basics & Syntax Guide</h4>
+                        <p class="pdf-meta">Added: 3 days ago • 5.5 MB</p>
+                        <div class="pdf-footer">
+                            <span style="font-size:12px; color:var(--text-muted);">By LK Team</span>
+                            <button class="btn btn-primary" style="padding: 8px 16px; font-size: 13px;">Open PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 8. IMPORTANT / VVI -->
+            <h3 class="sub-heading" style="margin-top: 60px;">Important & VVI</h3>
+            <p class="section-subtitle" style="margin-top:-10px;">Focus on what matters most.</p>
+            <div class="grid-4">
+                <div class="glass-panel card-3d list-card" style="flex-direction:column; text-align:center;">
+                    <div class="icon-box" style="color: #ffb703;"><svg viewBox="0 0 24 24" class="icon-svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                    <h4>Important Questions</h4>
+                </div>
+                <div class="glass-panel card-3d list-card" style="flex-direction:column; text-align:center;">
+                    <div class="icon-box" style="color: #ffb703;"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                    <h4>Formula Sheets</h4>
+                </div>
+                <div class="glass-panel card-3d list-card" style="flex-direction:column; text-align:center;">
+                    <div class="icon-box" style="color: #ffb703;"><svg viewBox="0 0 24 24" class="icon-svg"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                    <h4>Quick Revision</h4>
+                </div>
+                <div class="glass-panel card-3d list-card" style="flex-direction:column; text-align:center;">
+                    <div class="icon-box" style="color: #ffb703;"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                    <h4>VVI Notes</h4>
+                </div>
+            </div>
+
+            <!-- 9. QUESTION PAPERS & 10. EXAM PREP (Combined Grid for Layout) -->
+            <div class="grid-2" style="margin-top: 60px;">
+                <div>
+                    <h3 class="sub-heading">Practice & Papers</h3>
+                    <div style="display:flex; flex-direction:column; gap:16px;">
+                        <div class="glass-panel card-3d list-card">
+                            <div class="icon-box"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                            <div><h4>Previous Year Papers</h4><p style="font-size:12px; color:var(--text-muted);">Last 5 years solved</p></div>
+                        </div>
+                        <div class="glass-panel card-3d list-card">
+                            <div class="icon-box"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                            <div><h4>Model Papers</h4><p style="font-size:12px; color:var(--text-muted);">Latest exam pattern</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="sub-heading">Exam Preparation</h3>
+                    <div style="display:flex; flex-direction:column; gap:16px;">
+                        <div class="glass-panel card-3d list-card">
+                            <div class="icon-box" style="color:var(--brand-secondary)"><svg viewBox="0 0 24 24" class="icon-svg"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                            <div><h4>Last Minute Revision</h4><p style="font-size:12px; color:var(--text-muted);">Short & concise notes</p></div>
+                        </div>
+                        <div class="glass-panel card-3d list-card">
+                            <div class="icon-box" style="color:var(--brand-secondary)"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+                            <div><h4>Important Topics</h4><p style="font-size:12px; color:var(--text-muted);">Subject-wise breakdown</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 11. FAMILY / PARENT SECTION -->
+    <section class="family-section reveal">
+        <div class="container">
+            <h2 class="section-title">Family Corner</h2>
+            <p class="section-subtitle">Supporting every learner beyond the classroom.</p>
+            
+            <div class="grid-3">
+                <div class="glass-panel card-3d list-card">
+                    <div class="icon-box" style="color:#ff4d6d;"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+                    <div><h4>Encourage Your Student</h4><p style="font-size:12px; color:var(--text-muted);">Tips for motivation</p></div>
+                </div>
+                <div class="glass-panel card-3d list-card">
+                    <div class="icon-box" style="color:var(--brand-primary);"><svg viewBox="0 0 24 24" class="icon-svg"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                    <div><h4>Study Routine Support</h4><p style="font-size:12px; color:var(--text-muted);">Building habits at home</p></div>
+                </div>
+                <div class="glass-panel card-3d list-card">
+                    <div class="icon-box" style="color:var(--brand-secondary);"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                    <div><h4>Communication</h4><p style="font-size:12px; color:var(--text-muted);">Talking about exams</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 12. TEACHER SECTION -->
+    <section class="reveal">
+        <div class="container">
+            <h2 class="section-title">Teacher Corner</h2>
+            <p class="section-subtitle">A space for educators and learning resources.</p>
+            
+            <div class="grid-2">
+                <div class="glass-panel card-3d teacher-upload-zone">
+                    <div class="card-content">
+                        <div class="icon-box" style="margin: 0 auto 16px auto; width: 64px; height: 64px;"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                        <h4 style="margin-bottom:8px;">Upload New PDF Resource</h4>
+                        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">Share notes and papers directly to the platform.</p>
+                        <button class="btn btn-primary" style="padding: 10px 20px; font-size: 14px;">Select File</button>
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                    <div class="glass-panel card-3d list-card">
+                        <div class="icon-box"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+                        <div><h4>My Resources</h4><p style="font-size:12px; color:var(--text-muted);">Manage your uploads</p></div>
+                    </div>
+                    <div class="glass-panel card-3d list-card">
+                        <div class="icon-box"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                        <div><h4>Teacher Profile</h4><p style="font-size:12px; color:var(--text-muted);">Update details</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 13. LATEST UPDATES & 14. FEATURED -->
+    <section class="reveal">
+        <div class="container">
+            <div class="grid-2">
+                
+                <!-- LATEST UPDATES -->
+                <div>
+                    <h2 class="section-title">Latest Updates</h2>
+                    <p class="section-subtitle">News and notifications</p>
+                    <div style="display:flex; flex-direction:column; gap:16px;">
+                        
+                        <div class="glass-panel card-3d" style="padding:16px;">
+                            <div class="card-content" style="padding:0; display:flex; gap:16px; align-items:flex-start;">
+                                <div class="icon-box" style="width:40px; height:40px; margin:0;"><svg viewBox="0 0 24 24" class="icon-svg" style="width:16px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+                                <div>
+                                    <span style="font-size:11px; color:var(--brand-primary); font-weight:700;">NEW PDF ADDED</span>
+                                    <h4 style="font-size:15px; margin:4px 0;">Physics Chapter 4 Notes</h4>
+                                    <p style="font-size:12px; color:var(--text-muted);">Available in the student section now.</p>
+                                    <div style="font-size:10px; color:var(--text-muted); margin-top:8px;">Oct 24, 2023</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel card-3d" style="padding:16px;">
+                            <div class="card-content" style="padding:0; display:flex; gap:16px; align-items:flex-start;">
+                                <div class="icon-box" style="width:40px; height:40px; margin:0; color:var(--brand-secondary)"><svg viewBox="0 0 24 24" class="icon-svg" style="width:16px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                                <div>
+                                    <span style="font-size:11px; color:var(--brand-secondary); font-weight:700;">IMPORTANT NOTICE</span>
+                                    <h4 style="font-size:15px; margin:4px 0;">Upcoming Exam Schedule</h4>
+                                    <p style="font-size:12px; color:var(--text-muted);">Please review the revised timetable.</p>
+                                    <div style="font-size:10px; color:var(--text-muted); margin-top:8px;">Oct 22, 2023</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- FEATURED RESOURCES -->
+                <div>
+                    <h2 class="section-title">Featured</h2>
+                    <p class="section-subtitle">Highly recommended</p>
+                    <div class="glass-panel card-3d" style="height: calc(100% - 62px); display:flex; flex-direction:column; justify-content:center; text-align:center; padding:40px 20px;">
+                        <div class="card-content">
+                            <div class="icon-box" style="margin: 0 auto 16px auto; width: 64px; height: 64px; background:var(--gradient-primary); color:#fff;"><svg viewBox="0 0 24 24" class="icon-svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                            <h3 style="font-size:20px; margin-bottom:8px;">Complete Science Bundle</h3>
+                            <p style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">All Physics, Chemistry & Biology notes in one place.</p>
+                            <button class="btn btn-primary" style="padding: 10px 24px;">View Bundle</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 15. POPULAR RESOURCES & 16. STUDY TIPS -->
+    <section class="reveal">
+        <div class="container">
+            <h2 class="section-title">Popular & Study Tips</h2>
+            <div class="grid-3" style="margin-top: 30px;">
+                
+                <div class="glass-panel card-3d list-card">
+                    <div class="icon-box" style="color:var(--brand-primary);"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                    <div style="flex-grow:1;"><h4>Math Formula Sheet</h4><p style="font-size:12px; color:var(--text-muted);">PDF Notes</p></div>
+                    <div style="font-size:10px; font-weight:bold; color:var(--brand-primary);">#1 POPULAR</div>
+                </div>
+
+                <div class="glass-panel card-3d list-card">
+                    <div class="icon-box" style="color:var(--brand-secondary);"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+                    <div style="flex-grow:1;"><h4>How to Revise</h4><p style="font-size:12px; color:var(--text-muted);">Study Tip</p></div>
+                    <div style="font-size:10px; font-weight:bold; color:var(--text-muted);">READ</div>
+                </div>
+
+                <div class="glass-panel card-3d list-card">
+                    <div class="icon-box"><svg viewBox="0 0 24 24" class="icon-svg"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                    <div style="flex-grow:1;"><h4>Time Management</h4><p style="font-size:12px; color:var(--text-muted);">Study Tip</p></div>
+                    <div style="font-size:10px; font-weight:bold; color:var(--text-muted);">READ</div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 17. DOWNLOADS -->
+    <section class="reveal">
+        <div class="container">
+            <h2 class="section-title">Quick Downloads</h2>
+            <div class="quick-access-scroll" style="margin-top:20px;">
+                <button class="btn glass-panel card-3d" style="flex:0 0 auto; border-radius:30px; padding:12px 24px;">All PDFs</button>
+                <button class="btn glass-panel card-3d" style="flex:0 0 auto; border-radius:30px; padding:12px 24px;">Question Papers</button>
+                <button class="btn glass-panel card-3d" style="flex:0 0 auto; border-radius:30px; padding:12px 24px;">Model Papers</button>
+                <button class="btn glass-panel card-3d" style="flex:0 0 auto; border-radius:30px; padding:12px 24px;">Important Materials</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 18. HELP & FAQ (Functional Accordion) -->
+    <section class="reveal">
+        <div class="container">
+            <h2 class="section-title">Help & FAQ</h2>
+            <p class="section-subtitle">Common questions about LK SMART STUDIES</p>
+            
+            <div style="max-width: 800px;">
+                <div class="faq-item">
+                    <div class="faq-header">
+                        How can I find study material?
+                        <svg viewBox="0 0 24 24" class="icon-svg faq-icon" style="width:20px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
+                    <div class="faq-body">
+                        You can find all study materials in the Student section on the dashboard. Simply select your subject to view available PDFs, notes, and resources. You can also use the main search bar at the top of the page.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-header">
+                        Where are the PDF notes located?
+                        <svg viewBox="0 0 24 24" class="icon-svg faq-icon" style="width:20px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
+                    <div class="faq-body">
+                        PDF notes are organized under the 'PDF Notes' category within the Student Zone. They are categorized by subject and chapter for easy access and reading.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-header">
+                        What is the Family section?
+                        <svg viewBox="0 0 24 24" class="icon-svg faq-icon" style="width:20px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
+                    <div class="faq-body">
+                        The Family section is a dedicated space for parents and guardians. It provides tips, communication strategies, and advice on how to support students in establishing a healthy study routine at home.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-header">
+                        How will PDF uploads work?
+                        <svg viewBox="0 0 24 24" class="icon-svg faq-icon" style="width:20px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
+                    <div class="faq-body">
+                        Currently, the upload feature in the Teacher Corner is a visual placeholder. In the future, authorized educators will be able to select a file from their device and upload it directly to the platform's database to share with students.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 19-21. ABOUT & CONTACT -->
+    <section class="reveal">
+        <div class="container">
+            <div class="grid-2">
+                <div>
+                    <h2 class="section-title">About Us</h2>
+                    <div class="glass-panel" style="padding: 30px;">
+                        <h3 style="margin-bottom:16px;">LK SMART STUDIES</h3>
+                        <p style="color:var(--text-muted); line-height:1.6; font-size:14px;">
+                            Designed as a modern digital learning platform, LK SMART STUDIES focuses on providing organized study resources, structured PDF notes, and powerful educational materials. Our goal is to create a seamless, app-like experience that makes learning accessible, intuitive, and effective for students, while supporting teachers and families.
+                        </p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h2 class="section-title">Contact & Support</h2>
+                    <div class="grid-2">
+                        <div class="glass-panel card-3d list-card" style="flex-direction:column; text-align:center; padding:20px;">
+                            <div class="icon-box" style="margin:0 auto 10px auto;"><svg viewBox="0 0 24 24" class="icon-svg"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+                            <h4 style="font-size:14px;">Email Support</h4>
+                        </div>
+                        <div class="glass-panel card-3d list-card" style="flex-direction:column; text-align:center; padding:20px;">
+                            <div class="icon-box" style="margin:0 auto 10px auto;"><svg viewBox="0 0 24 24" class="icon-svg"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                            <h4 style="font-size:14px;">Help Center</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 22. LARGE FOOTER -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>LK SMART STUDIES</h3>
+                    <p style="font-weight:bold; color:var(--brand-primary); margin-bottom:10px; text-transform:uppercase; font-size:12px; letter-spacing:2px;">Learn • Explore • Grow</p>
+                    <p>Your premium digital learning platform for structured notes and educational resources.</p>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><a href="#">Student Dashboard</a></li>
+                        <li><a href="#">PDF Notes</a></li>
+                        <li><a href="#">Important Questions</a></li>
+                        <li><a href="#">Exam Preparation</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="#">Family Support</a></li>
+                        <li><a href="#">Teacher Corner</a></li>
+                        <li><a href="#">Latest Updates</a></li>
+                        <li><a href="#">Study Tips</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>Legal & Help</h4>
+                    <ul>
+                        <li><a href="#">Help & FAQ</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; LK SMART STUDIES. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MOBILE BOTTOM NAVIGATION (Visual Only) -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <svg viewBox="0 0 24 24" class="icon-svg"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24" class="icon-svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            Student
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24" class="icon-svg"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            Teacher
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24" class="icon-svg"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Updates
+        </a>
+        <a href="#" class="nav-item">
+            <svg viewBox="0 0 24 24" class="icon-svg"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            More
+        </a>
+    </nav>
+
+    <!-- JAVASCRIPT: FUNCTIONALITY & ANIMATIONS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Prevent default behavior for all placeholder links and buttons
+            // (Allows FAQ to function normally)
+            document.querySelectorAll('a, button:not(.faq-header):not(.action-btn)').forEach(el => {
+                if(!el.closest('.faq-item')) {
+                    el.addEventListener('click', (e) => {
+                        e.preventDefault();
+                    });
+                }
+            });
+
+            // 2. Intersection Observer for Scroll Animations
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            
+            if (!prefersReducedMotion) {
+                const observerOptions = {
+                    root: null,
+                    rootMargin: '0px 0px -50px 0px',
+                    threshold: 0.1
+                };
+
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                            obs.unobserve(entry.target); // Run once
+                        }
+                    });
+                }, observerOptions);
+
+                document.querySelectorAll('.reveal').forEach(el => {
+                    observer.observe(el);
+                });
+            } else {
+                // If reduced motion, just show everything immediately
+                document.querySelectorAll('.reveal').forEach(el => {
+                    el.classList.add('active');
+                });
+            }
+
+            // 3. FAQ Accordion Logic
+            const faqItems = document.querySelectorAll('.faq-item');
+            
+            faqItems.forEach(item => {
+                const header = item.querySelector('.faq-header');
+                header.addEventListener('click', () => {
+                    const isActive = item.classList.contains('active');
+                    
+                    // Close all other accordions
+                    faqItems.forEach(f => f.classList.remove('active'));
+                    
+                    // Toggle current
+                    if (!isActive) {
+                        item.classList.add('active');
+                    }
+                });
+            });
+
+            // 4. Desktop 3D Card Hover Effect (Lightweight Parallax)
+            // Follows cursor position to create a lighting / tilt effect
+            if (window.innerWidth > 768 && !prefersReducedMotion) {
+                const cards = document.querySelectorAll('.card-3d');
+                
+                cards.forEach(card => {
+                    card.addEventListener('mousemove', e => {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left; // x position within the element.
+                        const y = e.clientY - rect.top;  // y position within the element.
+                        
+                        // Set CSS variables for radial gradient mask (simulating light)
+                        card.style.setProperty('--mouse-x', `${x}px`);
+                        card.style.setProperty('--mouse-y', `${y}px`);
+                        
+                        // Subtle 3D Tilt calculation
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
+                        const rotateX = ((y - centerY) / centerY) * -4; // Max 4 deg tilt
+                        const rotateY = ((x - centerX) / centerX) * 4;
+                        
+                        card.style.transform = `perspective(1000px) scale(1.02) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+                    });
+                    
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = ``; // Reset to CSS default hover state
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

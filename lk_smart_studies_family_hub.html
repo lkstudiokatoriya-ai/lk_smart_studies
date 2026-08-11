@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0f1c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Family & Parent Support - LK SMART STUDIES</title>
+    
+    <style>
+        /* ==================================================
+           CSS VARIABLES & RESET (MATCHING BRAND SYSTEM)
+           ================================================== */
+        :root {
+            --bg-dark: #0a0f1c;
+            --brand-primary: #3a86ff;
+            --brand-secondary: #8338ec;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-card: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-border-hover: rgba(255, 255, 255, 0.25);
+            --text-main: #ffffff;
+            --text-muted: #a0a5b5;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            
+            --sidebar-width: 260px;
+            --gradient-primary: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            --gradient-text: linear-gradient(135deg, #ffffff 0%, #b0c4de 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body, html { width: 100%; background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; scroll-behavior: smooth; }
+
+        /* ==================================================
+           APP LAYOUT
+           ================================================== */
+        .app-container { display: flex; min-height: 100vh; width: 100%; position: relative; z-index: 2; }
+
+        /* Desktop Sidebar */
+        .sidebar {
+            width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0;
+            background: rgba(10, 15, 28, 0.8); backdrop-filter: blur(20px); border-right: 1px solid var(--glass-border);
+            padding: calc(30px + var(--safe-top)) 20px 30px; display: none; flex-direction: column; z-index: 100;
+        }
+
+        .brand-logo { font-size: 18px; font-weight: 800; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; letter-spacing: 1px; margin-bottom: 50px; }
+        .brand-logo svg { width: 24px; height: 24px; color: var(--brand-secondary); } /* Differentiating with purple for family */
+
+        .side-nav { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .side-link {
+            display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px;
+            color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 15px;
+            transition: all 0.3s;
+        }
+        .side-link svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
+        .side-link:hover { background: var(--glass-card); color: #fff; }
+        .side-link.active { background: rgba(131, 56, 236, 0.1); color: var(--brand-secondary); border: 1px solid rgba(131, 56, 236, 0.2); }
+
+        .main-content { flex-grow: 1; width: 100%; padding-bottom: calc(80px + var(--safe-bottom)); }
+
+        @media (min-width: 1024px) {
+            .sidebar { display: flex; }
+            .main-content { margin-left: var(--sidebar-width); padding-bottom: 0; }
+        }
+
+        /* ==================================================
+           APP HEADER
+           ================================================== */
+        .app-header {
+            position: sticky; top: 0; z-index: 90; height: calc(70px + var(--safe-top));
+            background: rgba(10, 15, 28, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border); padding: var(--safe-top) 20px 0;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-title { font-size: 18px; font-weight: 700; display: none; }
+        .mobile-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; color: #fff; text-decoration: none; }
+        .mobile-brand svg { width: 20px; height: 20px; color: var(--brand-secondary); }
+
+        @media (min-width: 1024px) {
+            .mobile-brand { display: none; }
+            .header-title { display: block; }
+        }
+
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .action-btn {
+            width: 40px; height: 40px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border);
+            color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+        }
+        .action-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+        .icon-svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ==================================================
+           AMBIENT BACKGROUND
+           ================================================== */
+        .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; overflow: hidden; perspective: 1000px; }
+        .glow { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.3; animation: pulseBg 15s infinite alternate ease-in-out; }
+        .glow-1 { top: -10%; right: -20%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--brand-secondary) 0%, transparent 60%); }
+        .glow-2 { bottom: -20%; left: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--brand-primary) 0%, transparent 60%); animation-delay: -5s; }
+        .glow-3 { top: 40%; left: 40%; width: 30vw; height: 30vw; background: radial-gradient(circle, #ff4d6d 0%, transparent 50%); opacity: 0.15; animation-delay: -2s; }
+
+        @keyframes pulseBg { 0% { transform: scale(1); opacity: 0.2; } 100% { transform: scale(1.1); opacity: 0.4; } }
+
+        /* ==================================================
+           UI COMPONENTS & TYPOGRAPHY
+           ================================================== */
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        section { margin-bottom: 60px; }
+        
+        .section-title { font-size: clamp(24px, 4vw, 32px); font-weight: 800; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+        .section-subtitle { font-size: clamp(14px, 3vw, 16px); color: var(--text-muted); margin-bottom: 30px; font-weight: 500; max-width: 800px; line-height: 1.6; }
+
+        .glass-panel { background: var(--glass-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); }
+        
+        /* 3D Card System */
+        .card-3d { position: relative; transform-style: preserve-3d; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow: hidden; }
+        .card-3d.interactive { cursor: pointer; }
+        .card-3d::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.08), transparent 40%); z-index: 1; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+        .card-3d.interactive:hover { transform: translateY(-6px) scale(1.02); border-color: var(--glass-border-hover); box-shadow: 0 15px 35px -10px rgba(0,0,0,0.6), 0 0 20px rgba(131,56,236,0.15), inset 0 1px 0 rgba(255,255,255,0.2); }
+        .card-3d:hover::before { opacity: 1; }
+        .card-3d.interactive:active { transform: translateY(-2px) scale(0.98); }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; font-weight: 600; border-radius: 12px; border: none; cursor: pointer; transition: all 0.3s; transform-style: preserve-3d; font-size: 14px; }
+        .btn-primary { background: var(--gradient-primary); color: #fff; box-shadow: 0 4px 15px rgba(131, 56, 236, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(131, 56, 236, 0.5); }
+        .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: #fff; }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+
+        /* Grids */
+        .grid-2 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        
+        @media (min-width: 600px) { .grid-2, .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 900px) { 
+            .grid-3 { grid-template-columns: repeat(3, 1fr); }
+            .grid-4 { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        /* ==================================================
+           HERO SECTION
+           ================================================== */
+        .hero-section { text-align: center; padding: 60px 0; position: relative; }
+        .hero-card { padding: 60px 30px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; border-color: rgba(131, 56, 236, 0.3); background: linear-gradient(180deg, rgba(131, 56, 236, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%); }
+        .hero-title { font-size: clamp(32px, 6vw, 48px); font-weight: 800; margin-bottom: 16px; background: linear-gradient(135deg, #fff 0%, #d8b4fe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-floating-elements { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; transform-style: preserve-3d; }
+        .hero-float-icon { position: absolute; width: 40px; height: 40px; color: rgba(255,255,255,0.2); animation: floatObject 8s infinite alternate ease-in-out; }
+        
+        @keyframes floatObject { 0% { transform: translateY(0) translateZ(30px) rotate(0deg); } 100% { transform: translateY(-20px) translateZ(30px) rotate(10deg); } }
+
+        /* ==================================================
+           CARD STYLES (Content Sections)
+           ================================================== */
+        .icon-card { padding: 24px; display: flex; flex-direction: column; gap: 16px; height: 100%; }
+        .icon-card-header { display: flex; align-items: center; gap: 16px; }
+        .icon-box { width: 48px; height: 48px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--brand-secondary); flex-shrink: 0; transform: translateZ(20px); transition: all 0.3s; }
+        .card-3d.interactive:hover .icon-box { background: var(--gradient-primary); color: #fff; transform: translateZ(30px) scale(1.1); border-color: transparent; }
+        .icon-card h4 { font-size: 17px; transform: translateZ(15px); line-height: 1.4; }
+        .icon-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; transform: translateZ(10px); flex-grow: 1; }
+
+        .quote-card { padding: 40px; text-align: center; border-color: rgba(58, 134, 255, 0.3); background: linear-gradient(135deg, rgba(58, 134, 255, 0.1) 0%, rgba(131, 56, 236, 0.1) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .quote-icon { color: var(--brand-primary); margin-bottom: 20px; opacity: 0.8; }
+        .quote-text { font-size: clamp(20px, 4vw, 28px); font-weight: 700; font-style: italic; line-height: 1.4; color: #fff; }
+
+        /* ==================================================
+           INTERACTIVE CHECKLIST
+           ================================================== */
+        .checklist-container { max-width: 800px; margin: 0 auto; }
+        .checklist-item { display: flex; align-items: flex-start; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--glass-border); transition: background 0.3s; cursor: pointer; }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item:hover { background: rgba(255,255,255,0.03); }
+        
+        /* Custom Checkbox */
+        .check-input { display: none; }
+        .check-box { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s; margin-top: 2px; }
+        .check-box svg { width: 14px; height: 14px; color: #fff; opacity: 0; transform: scale(0.5); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        .check-input:checked + .check-box { background: var(--brand-secondary); border-color: var(--brand-secondary); box-shadow: 0 0 10px rgba(131, 56, 236, 0.5); }
+        .check-input:checked + .check-box svg { opacity: 1; transform: scale(1); }
+        .check-text { font-size: 16px; color: #fff; line-height: 1.5; transition: color 0.3s; }
+        .check-input:checked ~ .check-text { color: var(--text-muted); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.2); }
+
+        /* ==================================================
+           PARENT FAQ ACCORDION
+           ================================================== */
+        .faq-container { max-width: 800px; margin: 0 auto; }
+        .faq-item { background: var(--glass-card); border: 1px solid var(--glass-border); border-radius: 16px; margin-bottom: 16px; overflow: hidden; transition: all 0.3s; }
+        .faq-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 600; font-size: 16px; }
+        .faq-icon { transition: transform 0.3s; color: var(--text-muted); }
+        .faq-body { padding: 0 20px; max-height: 0; opacity: 0; transition: all 0.3s ease-in-out; color: var(--text-muted); font-size: 15px; line-height: 1.6; }
+        
+        .faq-item.active { border-color: var(--brand-secondary); box-shadow: 0 10px 20px rgba(0,0,0,0.3); background: rgba(131,56,236,0.05); }
+        .faq-item.active .faq-header { color: #fff; }
+        .faq-item.active .faq-icon { transform: rotate(45deg); color: var(--brand-secondary); }
+        .faq-item.active .faq-body { padding: 0 20px 20px 20px; max-height: 200px; opacity: 1; }
+
+        /* ==================================================
+           FOOTER & BOTTOM NAV
+           ================================================== */
+        .main-footer { background: #050811; padding: 80px 0 40px 0; border-top: 1px solid var(--glass-border); position: relative; z-index: 2; margin-bottom: calc(70px + var(--safe-bottom)); }
+        @media (min-width: 1024px) { .main-footer { margin-bottom: 0; } }
+
+        .footer-grid { display: grid; grid-template-columns: 1fr; gap: 40px; margin-bottom: 60px; }
+        @media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+        
+        .footer-brand h3 { font-size: 24px; margin-bottom: 16px; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .footer-col h4 { font-size: 16px; margin-bottom: 20px; color: #fff; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul li a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; font-size: 14px; }
+        .footer-col ul li a:hover { color: var(--brand-primary); }
+        .footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 14px; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(10, 15, 28, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); z-index: 100; padding-bottom: var(--safe-bottom); display: flex; justify-content: space-around; align-items: center; height: calc(70px + var(--safe-bottom)); }
+        @media (min-width: 1024px) { .bottom-nav { display: none; } }
+        
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 11px; gap: 4px; width: 20%; height: 100%; transition: color 0.2s; }
+        .nav-item.active { color: var(--brand-secondary); }
+        .nav-item svg { width: 22px; height: 22px; stroke-width: 2; }
+        .nav-item.active svg { fill: rgba(131, 56, 236, 0.2); }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) { 
+            .reveal { opacity: 1; transform: none; transition: none; } 
+            .card-3d { transition: none; transform: none !important; } 
+            .glow, .hero-float-icon { animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="glow glow-3"></div>
+    </div>
+
+    <div class="app-container">
+        
+        <!-- DESKTOP SIDEBAR -->
+        <aside class="sidebar">
+            <a href="#" class="brand-logo">
+                <svg viewBox="0 0 24 24" class="icon-svg" stroke="currentColor" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                LK SMART STUDIES
+            </a>
+            
+            <nav class="side-nav">
+                <a href="#" class="side-link">
+                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Home
+                </a>
+                <a href="#" class="side-link">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                    Student Hub
+                </a>
+                <a href="#" class="side-link active">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Family Support
+                </a>
+                <a href="#" class="side-link">
+                    <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Updates
+                </a>
+                <a href="#" class="side-link">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Help & FAQ
+                </a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            
+            <!-- APP HEADER -->
+            <header class="app-header">
+                <div class="header-left">
+                    <a href="#" class="mobile-brand">
+                        <svg viewBox="0 0 24 24" class="icon-svg" stroke="currentColor" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        LK SMART STUDIES
+                    </a>
+                    <h2 class="header-title">Family Guidance Hub</h2>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="action-btn" aria-label="Search"><svg class="icon-svg"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+                    <button class="action-btn" aria-label="Notifications" style="display:none;" id="desktop-bell"><svg class="icon-svg"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                    <button class="action-btn" aria-label="Menu"><svg class="icon-svg"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+                </div>
+            </header>
+
+            <div class="container">
+                
+                <!-- 2. HERO / WELCOME SECTION -->
+                <section class="hero-section reveal">
+                    <div class="glass-panel card-3d hero-card">
+                        
+                        <!-- Floating Elements -->
+                        <div class="hero-floating-elements">
+                            <svg class="hero-float-icon" style="top:10%; left:10%; animation-delay:0s;" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            <svg class="hero-float-icon" style="top:15%; right:15%; animation-delay:-2s;" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                            <svg class="hero-float-icon" style="bottom:15%; left:20%; animation-delay:-4s;" viewBox="0 0 24 24" stroke="currentColor" fill="none"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            <svg class="hero-float-icon" style="bottom:20%; right:10%; animation-delay:-1s;" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                        </div>
+
+                        <h1 class="hero-title">Family & Parent Support</h1>
+                        <p class="section-subtitle" style="font-size:18px; color:#fff; font-weight:600; margin-bottom:12px;">Every student's journey becomes stronger with the right support.</p>
+                        <p class="section-subtitle" style="max-width:600px; margin-bottom:0;">Learn how small, positive support at home can make a meaningful difference in a student's learning journey.</p>
+                    </div>
+                </section>
+
+                <!-- 3. QUICK ACCESS -->
+                <section class="reveal">
+                    <h2 class="section-title">Explore Family Support</h2>
+                    <div class="grid-3">
+                        <div class="glass-panel card-3d interactive icon-card">
+                            <div class="icon-card-header">
+                                <div class="icon-box" style="color:#ff4d6d;"><svg class="icon-svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+                                <h4>Encourage Your Student</h4>
+                            </div>
+                            <p>Positive reinforcement and confidence building techniques.</p>
+                        </div>
+                        <div class="glass-panel card-3d interactive icon-card">
+                            <div class="icon-card-header">
+                                <div class="icon-box"><svg class="icon-svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
+                                <h4>Support Their Study</h4>
+                            </div>
+                            <p>Help organize materials and support their learning goals.</p>
+                        </div>
+                        <div class="glass-panel card-3d interactive icon-card">
+                            <div class="icon-card-header">
+                                <div class="icon-box" style="color:var(--brand-primary);"><svg class="icon-svg"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                                <h4>Build a Study Routine</h4>
+                            </div>
+                            <p>Establish healthy habits for consistency without burnout.</p>
+                        </div>
+                        <div class="glass-panel card-3d interactive icon-card">
+                            <div class="icon-card-header">
+                                <div class="icon-box" style="color:#2ec4b6;"><svg class="icon-svg"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+                                <h4>Create a Study Environment</h4>
+                            </div>
+                            <p>Set up a quiet, focused, and distraction-free physical space.</p>
+                        </div>
+                        <div class="glass-panel card-3d interactive icon-card">
+                            <div class="icon-card-header">
+                                <div class="icon-box" style="color:#ffb703;"><svg class="icon-svg"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                                <h4>Communicate Better</h4>
+                            </div>
+                            <p>Listen actively and talk constructively about academics.</p>
+                        </div>
+                        <div class="glass-panel card-3d interactive icon-card">
+                            <div class="icon-card-header">
+                                <div class="icon-box"><svg class="icon-svg"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+                                <h4>Support Exam Prep</h4>
+                            </div>
+                            <p>Reduce pressure and help them navigate exam season calmly.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. ENCOURAGE YOUR STUDENT -->
+                <section class="reveal">
+                    <h2 class="section-title">How to Encourage a Student</h2>
+                    <p class="section-subtitle">Practical supportive ideas to boost morale and confidence.</p>
+                    <div class="grid-3">
+                        <div class="glass-panel card-3d icon-card">
+                            <div class="icon-box"><svg class="icon-svg"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
+                            <h4>Appreciate Effort</h4>
+                            <p>Focus on the hard work they put in, regardless of the immediate outcome.</p>
+                        </div>
+                        <div class="glass-panel card-3d icon-card">
+                            <div class="icon-box"><svg class="icon-svg"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+                            <h4>Notice Progress</h4>
+                            <p>Celebrate small improvements in their understanding and habits over time.</p>
+                        </div>
+                        <div class="glass-panel card-3d icon-card">
+                            <div class="icon-box"><svg class="icon-svg"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                            <h4>Encourage Consistency</h4>
+                            <p>Remind them that small, regular study sessions build the strongest foundation.</p>
+                        </div>
+                        <div class="glass-panel card-3d icon-card">
+                            <div class="icon-box"><svg class="icon-svg"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                            <h4>Listen First</h4>
+                            <p>Let them explain their academic struggles without immediately offering solutions or judgment.</p>
+                        </div>
+                        <div class="glass-panel card-3d icon-card">
+                            <div class="icon-box"><svg class="icon-svg"><path d="M5 3v4M19 3v4M5 21v-4M19 21v-4M9 3h6M9 21h6M12 7v10M16 12H8"/></svg></div>
+                            <h4>Help Set Realistic Goals</h4>
+                            <p>Assist them in breaking down large tasks into smaller, achievable targets.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. HOW TO SUPPORT STUDY & 6. STUDY ENVIRONMENT (Combined for layout) -->
+                <div class="grid-2">
+                    <section class="reveal">
+                        <h2 class="section-title">Support Their Study</h2>
+                        <div class="grid-2">
+                            <div class="glass-panel card-3d icon-card" style="padding:16px;">
+                                <h4 style="margin-bottom:8px; font-size:15px;">📚 Organize Materials</h4>
+                                <p style="font-size:13px;">Help them sort their PDF notes and books so everything is ready when study time starts.</p>
+                            </div>
+                            <div class="glass-panel card-3d icon-card" style="padding:16px;">
+                                <h4 style="margin-bottom:8px; font-size:15px;">🔕 Reduce Distractions</h4>
+                                <p style="font-size:13px;">Keep TV volumes low and avoid interrupting them during focused study blocks.</p>
+                            </div>
+                            <div class="glass-panel card-3d icon-card" style="padding:16px;">
+                                <h4 style="margin-bottom:8px; font-size:15px;">📝 Encourage Revision</h4>
+                                <p style="font-size:13px;">Gently remind them to look over past notes, not just focus on new material.</p>
+                            </div>
+                            <div class="glass-panel card-3d icon-card" style="padding:16px;">
+                                <h4 style="margin-bottom:8px; font-size:15px;">🎯 Maintain Goals</h4>
+                                <p style="font-size:13px;">Help them keep their weekly study targets visible and achievable.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="reveal">
+                        <h2 class="section-title">Better Study Environment</h2>
+                        <div class="glass-panel card-3d" style="height: calc(100% - 45px); padding: 30px;">
+                            <ul style="list-style:none; display:flex; flex-direction:column; gap:20px;">
+                                <li style="display:flex; align-items:center; gap:16px;">
+                                    <div class="icon-box" style="width:36px; height:36px; margin:0;"><svg class="icon-svg" style="width:16px;"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div>
+                                    <div><strong>Good Lighting:</strong> Ensure the room is well-lit to prevent eye strain.</div>
+                                </li>
+                                <li style="display:flex; align-items:center; gap:16px;">
+                                    <div class="icon-box" style="width:36px; height:36px; margin:0;"><svg class="icon-svg" style="width:16px;"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/></svg></div>
+                                    <div><strong>Quiet Space:</strong> A dedicated corner away from household noise.</div>
+                                </li>
+                                <li style="display:flex; align-items:center; gap:16px;">
+                                    <div class="icon-box" style="width:36px; height:36px; margin:0;"><svg class="icon-svg" style="width:16px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+                                    <div><strong>Comfortable Area:</strong> A proper desk and chair to maintain good posture.</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 7. STUDY ROUTINE & 8. COMMUNICATION -->
+                <section class="reveal">
+                    <h2 class="section-title">Healthy Routine & Communication</h2>
+                    <div class="grid-2">
+                        
+                        <div class="glass-panel card-3d" style="padding:30px;">
+                            <h3 style="margin-bottom:20px; font-size:20px; display:flex; align-items:center; gap:10px;"><svg class="icon-svg" style="color:var(--brand-primary);"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Support a Routine</h3>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                                <div><strong>Morning:</strong> Quick plan for the day's tasks.</div>
+                                <div><strong>Study Time:</strong> Dedicated focus blocks.</div>
+                                <div><strong>Breaks:</strong> Important for mental reset.</div>
+                                <div><strong>Sleep:</strong> Essential for memory retention.</div>
+                            </div>
+                            <p style="margin-top:20px; font-size:13px; color:var(--text-muted);">*Do not prescribe rigid schedules. Help them find a rhythm that works for their energy levels.</p>
+                        </div>
+
+                        <div class="glass-panel card-3d quote-card" style="padding:30px;">
+                            <svg class="icon-svg quote-icon" style="width:40px; height:40px;" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <p class="quote-text" style="font-size: clamp(16px, 3vw, 22px);">"Sometimes students need someone to listen before they need advice."</p>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- 9. AVOID COMPARISON -->
+                <section class="reveal">
+                    <div class="glass-panel card-3d quote-card" style="background: linear-gradient(135deg, rgba(131, 56, 236, 0.15) 0%, rgba(10, 15, 28, 0.8) 100%);">
+                        <h2 class="section-title" style="margin-bottom:16px;">Every Student Has Their Own Journey</h2>
+                        <p style="font-size:16px; max-width:700px; color:var(--text-muted); line-height:1.6; margin-bottom:0;">Avoid encouraging comparison between students. Focus on their personal progress, their specific effort, and their consistency. A learning journey is individual, and measuring success against others often causes unnecessary pressure rather than motivation.</p>
+                    </div>
+                </section>
+
+                <!-- 10. EXAM TIME & 11. AFTER EXAM -->
+                <section class="reveal">
+                    <div class="grid-2">
+                        <div>
+                            <h2 class="section-title">Support During Exams</h2>
+                            <div class="grid-2">
+                                <div class="glass-panel card-3d icon-card" style="padding:16px;">
+                                    <h4 style="margin-bottom:4px; font-size:15px;">Respect Study Time</h4>
+                                    <p style="font-size:12px;">Minimize household chores during peak revision weeks.</p>
+                                </div>
+                                <div class="glass-panel card-3d icon-card" style="padding:16px;">
+                                    <h4 style="margin-bottom:4px; font-size:15px;">Reduce Pressure</h4>
+                                    <p style="font-size:12px;">Keep conversations positive; avoid demanding perfect scores.</p>
+                                </div>
+                                <div class="glass-panel card-3d icon-card" style="padding:16px;">
+                                    <h4 style="margin-bottom:4px; font-size:15px;">Organize Materials</h4>
+                                    <p style="font-size:12px;">Ensure they have pens, admit cards, and tools ready the night before.</p>
+                                </div>
+                                <div class="glass-panel card-3d icon-card" style="padding:16px;">
+                                    <h4 style="margin-bottom:4px; font-size:15px;">Focus on Prep</h4>
+                                    <p style="font-size:12px;">Ask "How is revision going?" instead of "Will you top the class?"</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="section-title">After the Exam</h2>
+                            <div class="glass-panel card-3d" style="height: calc(100% - 45px); padding:24px;">
+                                <ul style="list-style:none; display:flex; flex-direction:column; gap:16px;">
+                                    <li style="display:flex; align-items:flex-start; gap:12px;">
+                                        <svg class="icon-svg" style="color:var(--brand-primary); margin-top:2px; width:16px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                        <span style="font-size:14px;"><strong>Discuss the experience:</strong> Let them vent about hard questions without judgment.</span>
+                                    </li>
+                                    <li style="display:flex; align-items:flex-start; gap:12px;">
+                                        <svg class="icon-svg" style="color:var(--brand-primary); margin-top:2px; width:16px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                        <span style="font-size:14px;"><strong>Identify learnings:</strong> Ask what study methods worked best for them this time.</span>
+                                    </li>
+                                    <li style="display:flex; align-items:flex-start; gap:12px;">
+                                        <svg class="icon-svg" style="color:var(--brand-primary); margin-top:2px; width:16px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                        <span style="font-size:14px;"><strong>Avoid blame:</strong> If a paper went poorly, focus on constructive next steps.</span>
+                                    </li>
+                                    <li style="display:flex; align-items:flex-start; gap:12px;">
+                                        <svg class="icon-svg" style="color:var(--brand-primary); margin-top:2px; width:16px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                        <span style="font-size:14px;"><strong>Plan ahead:</strong> Take a break, then organize for the next subject.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 12. MOTIVATION CORNER -->
+                <section class="reveal">
+                    <h2 class="section-title">Motivation Corner</h2>
+                    <div class="grid-3">
+                        <div class="glass-panel card-3d quote-card" style="padding:30px 20px;">
+                            <p class="quote-text" style="font-size:18px;">"Progress matters more than perfection."</p>
+                        </div>
+                        <div class="glass-panel card-3d quote-card" style="padding:30px 20px; border-color: rgba(131, 56, 236, 0.4);">
+                            <p class="quote-text" style="font-size:18px; background: linear-gradient(135deg, #d8b4fe 0%, #fff 100%); -webkit-background-clip: text;">"Small consistent steps can build strong learning habits."</p>
+                        </div>
+                        <div class="glass-panel card-3d quote-card" style="padding:30px 20px;">
+                            <p class="quote-text" style="font-size:18px;">"Support can give students the confidence to keep trying."</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 13. FAMILY CHECKLIST (Interactive) -->
+                <section class="reveal">
+                    <h2 class="section-title">Family Support Checklist</h2>
+                    <p class="section-subtitle">A simple tool to help you stay engaged with your student's progress.</p>
+                    
+                    <div class="glass-panel card-3d checklist-container">
+                        <label class="checklist-item">
+                            <input type="checkbox" class="check-input" id="chk1">
+                            <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                            <span class="check-text">I encourage effort over just focusing on grades.</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" class="check-input" id="chk2">
+                            <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                            <span class="check-text">I listen to my student without immediately judging.</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" class="check-input" id="chk3">
+                            <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                            <span class="check-text">I support a regular and balanced study routine.</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" class="check-input" id="chk4">
+                            <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                            <span class="check-text">I help reduce household distractions during their study time.</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" class="check-input" id="chk5">
+                            <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                            <span class="check-text">I avoid unnecessary comparisons with other students.</span>
+                        </label>
+                        <label class="checklist-item">
+                            <input type="checkbox" class="check-input" id="chk6">
+                            <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                            <span class="check-text">I celebrate progress and small milestones.</span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- 14. PARENT FAQ (Accordion) -->
+                <section class="reveal">
+                    <h2 class="section-title">Family / Parent FAQ</h2>
+                    <div class="faq-container">
+                        
+                        <div class="faq-item">
+                            <div class="faq-header">
+                                How can I encourage my student?
+                                <svg viewBox="0 0 24 24" class="icon-svg faq-icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </div>
+                            <div class="faq-body">
+                                Start by recognizing their effort and time spent studying, rather than just the final marks. Positive reinforcement builds long-term confidence.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-header">
+                                How can I help with study routines?
+                                <svg viewBox="0 0 24 24" class="icon-svg faq-icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </div>
+                            <div class="faq-body">
+                                Work together to create a schedule that includes breaks. Ensure the routine is realistic, and gently remind them to stick to it without being overly strict.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-header">
+                                How can I create a better study environment?
+                                <svg viewBox="0 0 24 24" class="icon-svg faq-icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </div>
+                            <div class="faq-body">
+                                Provide a well-lit, quiet area designated only for studying. Keep materials organized and try to minimize loud household activities during their focus hours.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-header">
+                                What should I do when a student loses motivation?
+                                <svg viewBox="0 0 24 24" class="icon-svg faq-icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </div>
+                            <div class="faq-body">
+                                Listen to their frustrations first. Sometimes they just need a break. Help them revisit their goals and break large, overwhelming tasks into smaller, manageable pieces.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-header">
+                                How can I support progress without comparing?
+                                <svg viewBox="0 0 24 24" class="icon-svg faq-icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </div>
+                            <div class="faq-body">
+                                Compare their current performance only to their past performance. Highlight how much they have improved in a specific subject rather than mentioning a classmate's score.
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- 15. FAMILY RESOURCE CARDS -->
+                <section class="reveal">
+                    <h2 class="section-title">Family Resources</h2>
+                    <p class="section-subtitle">Quick guides and reading material (Coming Soon).</p>
+                    <div class="grid-4">
+                        <div class="glass-panel card-3d interactive icon-card" style="padding:16px;">
+                            <h4 style="font-size:15px; margin-bottom:8px;">Study Support Guide</h4>
+                            <button class="btn btn-outline" style="padding: 6px 12px; font-size:12px; width:100%;">View Placeholder</button>
+                        </div>
+                        <div class="glass-panel card-3d interactive icon-card" style="padding:16px;">
+                            <h4 style="font-size:15px; margin-bottom:8px;">Motivation Guide</h4>
+                            <button class="btn btn-outline" style="padding: 6px 12px; font-size:12px; width:100%;">View Placeholder</button>
+                        </div>
+                        <div class="glass-panel card-3d interactive icon-card" style="padding:16px;">
+                            <h4 style="font-size:15px; margin-bottom:8px;">Exam Support Guide</h4>
+                            <button class="btn btn-outline" style="padding: 6px 12px; font-size:12px; width:100%;">View Placeholder</button>
+                        </div>
+                        <div class="glass-panel card-3d interactive icon-card" style="padding:16px;">
+                            <h4 style="font-size:15px; margin-bottom:8px;">Routine Guide</h4>
+                            <button class="btn btn-outline" style="padding: 6px 12px; font-size:12px; width:100%;">View Placeholder</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 16. SUPPORTIVE MESSAGE -->
+                <section class="reveal">
+                    <div class="glass-panel card-3d quote-card" style="background: linear-gradient(135deg, rgba(58, 134, 255, 0.15) 0%, rgba(131, 56, 236, 0.15) 100%); padding: 60px 30px;">
+                        <h2 class="hero-title" style="font-size:32px; margin-bottom:20px;">Learning Is a Journey</h2>
+                        <p style="font-size:18px; max-width:800px; color:#fff; line-height:1.6; margin:0;">
+                            "Students do not need perfection from their families. They need understanding, encouragement and consistent support."
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 17. HELP SECTION -->
+                <section class="reveal">
+                    <h2 class="section-title">Need Help?</h2>
+                    <div class="grid-4">
+                        <button class="btn glass-panel card-3d interactive" style="padding:16px;">General FAQ</button>
+                        <button class="btn glass-panel card-3d interactive" style="padding:16px;">Study Support</button>
+                        <button class="btn glass-panel card-3d interactive" style="padding:16px;">Family Guidance</button>
+                        <button class="btn btn-primary card-3d interactive" style="padding:16px;">Contact Support</button>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- 18. FOOTER -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>LK SMART STUDIES</h3>
+                    <p style="font-weight:bold; color:var(--brand-primary); margin-bottom:10px; text-transform:uppercase; font-size:12px; letter-spacing:2px;">Learn • Explore • Grow</p>
+                    <p style="color:var(--text-muted); max-width:300px; line-height:1.6;">Your premium digital learning platform for structured notes and educational resources.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><a href="#">Student Dashboard</a></li>
+                        <li><a href="#">PDF Notes</a></li>
+                        <li><a href="#">Exam Preparation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="#">Family Support</a></li>
+                        <li><a href="#">Teacher Corner</a></li>
+                        <li><a href="#">Latest Updates</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal & Help</h4>
+                    <ul>
+                        <li><a href="#">Help & FAQ</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; LK SMART STUDIES. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item">
+            <svg class="icon-svg"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home
+        </a>
+        <a href="#" class="nav-item">
+            <svg class="icon-svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            Student
+        </a>
+        <a href="#" class="nav-item active">
+            <svg class="icon-svg"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Family
+        </a>
+        <a href="#" class="nav-item">
+            <svg class="icon-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Updates
+        </a>
+        <a href="#" class="nav-item">
+            <svg class="icon-svg"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            More
+        </a>
+    </nav>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Prevent default behavior for placeholder links/buttons
+            document.querySelectorAll('a, button:not(.faq-header):not(.action-btn)').forEach(el => {
+                if(!el.closest('.faq-item') && !el.classList.contains('check-input')) {
+                    el.addEventListener('click', (e) => e.preventDefault());
+                }
+            });
+
+            // 2. Intersection Observer for Scroll Animations
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            
+            if (!prefersReducedMotion) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                            obs.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+                document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            } else {
+                document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
+            }
+
+            // 3. FAQ Accordion Logic
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                const header = item.querySelector('.faq-header');
+                header.addEventListener('click', () => {
+                    const isActive = item.classList.contains('active');
+                    faqItems.forEach(f => f.classList.remove('active')); // Close others
+                    if (!isActive) item.classList.add('active');
+                });
+            });
+
+            // 4. Interactive Checklist Logic (LocalStorage)
+            const checkboxes = document.querySelectorAll('.check-input');
+            const STORAGE_KEY = 'lk_family_checklist_state';
+            
+            // Load state
+            try {
+                const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                checkboxes.forEach(cb => {
+                    if (savedState[cb.id]) cb.checked = true;
+                    
+                    cb.addEventListener('change', (e) => {
+                        savedState[e.target.id] = e.target.checked;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedState));
+                    });
+                });
+            } catch (e) {
+                console.log("LocalStorage not available for checklist state.");
+            }
+
+            // 5. Desktop 3D Card Hover Effect (Lightweight Parallax)
+            if (window.innerWidth > 768 && !prefersReducedMotion) {
+                const cards = document.querySelectorAll('.card-3d.interactive');
+                
+                cards.forEach(card => {
+                    card.addEventListener('mousemove', e => {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        
+                        card.style.setProperty('--mouse-x', `${x}px`);
+                        card.style.setProperty('--mouse-y', `${y}px`);
+                        
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
+                        const rotateX = ((y - centerY) / centerY) * -4;
+                        const rotateY = ((x - centerX) / centerX) * 4;
+                        
+                        card.style.transform = `perspective(1000px) scale(1.02) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+                    });
+                    
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = ``;
+                    });
+                });
+            }
+            
+            // Display bell on desktop only
+            if (window.innerWidth > 1024) {
+                document.getElementById('desktop-bell').style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+</html>
