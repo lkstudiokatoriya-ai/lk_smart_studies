@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0f1c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>About - LK SMART STUDIES</title>
+    
+    <style>
+        /* ==================================================
+           CSS VARIABLES & RESET
+           ================================================== */
+        :root {
+            --bg-dark: #0a0f1c;
+            --brand-primary: #3a86ff;
+            --brand-secondary: #8338ec;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-card: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-border-hover: rgba(255, 255, 255, 0.25);
+            --text-main: #ffffff;
+            --text-muted: #a0a5b5;
+            
+            --success: #2ec4b6;
+            --warning: #ffb703;
+            --danger: #ff4d6d;
+            
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            
+            --gradient-primary: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            --gradient-text: linear-gradient(135deg, #ffffff 0%, #b0c4de 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body, html { width: 100%; background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; scroll-behavior: smooth; }
+
+        /* ==================================================
+           APP HEADER
+           ================================================== */
+        .app-header {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
+            background: rgba(10, 15, 28, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding-top: var(--safe-top); height: calc(70px + var(--safe-top));
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        .header-content { width: 100%; max-width: 1200px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+
+        .brand-logo { font-size: 18px; font-weight: 800; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; letter-spacing: 1px; }
+        .brand-logo svg { width: 24px; height: 24px; color: var(--brand-primary); }
+        .desktop-title { display: none; font-size: 16px; font-weight: 600; color: var(--text-muted); }
+
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .action-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+        .action-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+
+        @media (min-width: 768px) { .desktop-title { display: block; } }
+
+        /* ==================================================
+           AMBIENT BACKGROUND
+           ================================================== */
+        .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; overflow: hidden; perspective: 1000px; }
+        .glow { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.3; animation: pulseBg 12s infinite alternate ease-in-out; }
+        .glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--brand-secondary) 0%, transparent 60%); }
+        .glow-2 { bottom: 20%; right: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--brand-primary) 0%, transparent 60%); animation-delay: -5s; }
+
+        @keyframes pulseBg { 0% { transform: scale(1); opacity: 0.2; } 100% { transform: scale(1.2); opacity: 0.4; } }
+
+        /* ==================================================
+           LAYOUT & TYPOGRAPHY
+           ================================================== */
+        .main-wrapper { position: relative; z-index: 2; padding: calc(70px + var(--safe-top)) 0 calc(90px + var(--safe-bottom)); width: 100%; }
+        @media (min-width: 768px) { .main-wrapper { padding-bottom: 0; } }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        section { padding: 50px 0; }
+        
+        .section-title { font-size: clamp(28px, 4vw, 36px); font-weight: 800; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; }
+        .section-subtitle { font-size: clamp(15px, 3vw, 18px); color: var(--text-muted); line-height: 1.6; max-width: 800px; margin-bottom: 30px; }
+        
+        .sub-heading { font-size: 20px; font-weight: 700; margin-bottom: 24px; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .sub-heading::before { content: ''; width: 4px; height: 16px; background: var(--gradient-primary); border-radius: 2px; }
+
+        /* Grids */
+        .grid-2 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .grid-6 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        
+        @media (min-width: 600px) { .grid-2 { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 900px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } .grid-4 { grid-template-columns: repeat(4, 1fr); } .grid-6 { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1200px) { .grid-6 { grid-template-columns: repeat(4, 1fr); } }
+
+        /* ==================================================
+           3D GLASS CARDS
+           ================================================== */
+        .glass-panel { background: var(--glass-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); }
+        
+        .card-3d { position: relative; transform-style: preserve-3d; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .card-3d.interactive { cursor: pointer; overflow: hidden; }
+        .card-3d.interactive::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.08), transparent 40%); z-index: 1; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+        .card-3d.interactive:hover { transform: translateY(-6px) scale(1.02); border-color: var(--glass-border-hover); box-shadow: 0 15px 35px -10px rgba(0,0,0,0.6), 0 0 20px rgba(58,134,255,0.15), inset 0 1px 0 rgba(255,255,255,0.2); }
+        .card-3d.interactive:hover::before { opacity: 1; }
+        .card-3d.interactive:active { transform: translateY(-2px) scale(0.98); }
+
+        .icon-box { width: 48px; height: 48px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--brand-primary); flex-shrink: 0; font-size: 20px; transform: translateZ(20px); transition: all 0.3s; }
+        .card-3d.interactive:hover .icon-box { background: var(--gradient-primary); color: #fff; transform: translateZ(30px) scale(1.1); border-color: transparent; }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; font-weight: 600; border-radius: 12px; border: none; cursor: pointer; transition: all 0.3s; font-size: 14px; gap: 8px; text-decoration: none; }
+        .btn-primary { background: var(--gradient-primary); color: #fff; box-shadow: 0 4px 15px rgba(58, 134, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(58, 134, 255, 0.5); }
+        .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: #fff; }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+
+        .icon-svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ==================================================
+           SPECIFIC SECTIONS
+           ================================================== */
+        
+        /* Hero */
+        .hero-section { text-align: center; padding: 60px 0 20px; position: relative; }
+        .hero-card { padding: 60px 30px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; background: linear-gradient(180deg, rgba(58, 134, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%); border-color: rgba(58, 134, 255, 0.3); }
+        .hero-floating-elements { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; transform-style: preserve-3d; }
+        .hero-float-icon { position: absolute; font-size: 32px; opacity: 0.8; animation: floatObject 8s infinite alternate ease-in-out; filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
+        
+        @keyframes floatObject { 0% { transform: translateY(0) translateZ(30px) rotate(0deg); } 100% { transform: translateY(-20px) translateZ(30px) rotate(15deg); } }
+
+        /* Content Cards */
+        .content-card { padding: 30px; text-align: left; display: flex; flex-direction: column; height: 100%; }
+        .content-card h3 { font-size: 18px; margin-bottom: 12px; transform: translateZ(15px); }
+        .content-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; transform: translateZ(10px); flex-grow: 1; }
+        .content-card.flex-row { flex-direction: row; align-items: center; gap: 20px; }
+
+        /* Tags/Badges Grid */
+        .tag-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+        .tag { padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; font-size: 13px; font-weight: 600; color: #fff; }
+
+        /* Alert/Info Box */
+        .info-box { padding: 20px; background: rgba(255, 183, 3, 0.1); border: 1px solid rgba(255, 183, 3, 0.3); border-radius: 12px; display: flex; gap: 16px; align-items: flex-start; margin-top: 24px; }
+        .info-box.danger { background: rgba(255, 77, 109, 0.1); border-color: rgba(255, 77, 109, 0.3); }
+
+        /* Giant Numbers (Section 13) */
+        .number-card { position: relative; overflow: hidden; }
+        .giant-number { position: absolute; right: -10px; bottom: -20px; font-size: 120px; font-weight: 900; color: rgba(255,255,255,0.03); line-height: 1; pointer-events: none; z-index: 0; }
+        .number-card-content { position: relative; z-index: 1; }
+
+        /* Status Badges */
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 6px; letter-spacing: 0.5px; border: 1px solid transparent; }
+        .status-available { background: rgba(46, 196, 182, 0.15); color: var(--success); border-color: rgba(46, 196, 182, 0.3); }
+        .status-pending { background: rgba(255, 183, 3, 0.15); color: var(--warning); border-color: rgba(255, 183, 3, 0.3); }
+        .status-future { background: rgba(255, 77, 109, 0.15); color: var(--danger); border-color: rgba(255, 77, 109, 0.3); }
+
+        /* ==================================================
+           FOOTER & BOTTOM NAV
+           ================================================== */
+        .main-footer { background: #050811; padding: 80px 0 40px 0; border-top: 1px solid var(--glass-border); position: relative; z-index: 2; margin-top: 60px; }
+        .footer-grid { display: grid; grid-template-columns: 1fr; gap: 40px; margin-bottom: 60px; }
+        @media (min-width: 768px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+        
+        .footer-brand h3 { font-size: 24px; margin-bottom: 16px; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .footer-col h4 { font-size: 16px; margin-bottom: 20px; color: #fff; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul li a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; font-size: 14px; }
+        .footer-col ul li a:hover { color: var(--brand-primary); }
+        .footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 14px; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(10, 15, 28, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); z-index: 100; padding-bottom: var(--safe-bottom); display: flex; justify-content: space-around; align-items: center; height: calc(70px + var(--safe-bottom)); }
+        @media (min-width: 768px) { .bottom-nav { display: none; } }
+        
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 11px; gap: 4px; width: 20%; height: 100%; transition: color 0.2s; }
+        .nav-item.active { color: var(--brand-primary); }
+        .nav-item svg { width: 22px; height: 22px; stroke-width: 2; }
+        .nav-item.active svg { fill: rgba(58, 134, 255, 0.2); }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) { 
+            .reveal { opacity: 1; transform: none; transition: none; } 
+            .card-3d { transition: none; transform: none !important; } 
+            .glow, .hero-float-icon { animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <!-- APP HEADER -->
+    <header class="app-header">
+        <div class="header-content">
+            <div style="display:flex; align-items:center; gap:16px;">
+                <a href="#" class="brand-logo">
+                    <svg viewBox="0 0 24 24" class="icon-svg" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    LK SMART STUDIES
+                </a>
+                <span class="desktop-title">About LK SMART STUDIES</span>
+            </div>
+            <div class="header-actions">
+                <button class="action-btn" aria-label="Search"><svg class="icon-svg"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+                <button class="action-btn" aria-label="Menu"><svg class="icon-svg"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <div class="container">
+            
+            <!-- HERO SECTION -->
+            <section class="hero-section reveal">
+                <div class="glass-panel card-3d hero-card">
+                    <div class="hero-floating-elements">
+                        <div class="hero-float-icon" style="top:10%; left:15%; animation-delay:0s;">📚</div>
+                        <div class="hero-float-icon" style="top:25%; right:15%; animation-delay:-2s;">📄</div>
+                        <div class="hero-float-icon" style="bottom:20%; left:25%; animation-delay:-4s;">🎓</div>
+                        <div class="hero-float-icon" style="bottom:15%; right:20%; animation-delay:-1s;">💡</div>
+                        <div class="hero-float-icon" style="top:45%; left:5%; animation-delay:-3s;">⭐</div>
+                    </div>
+                    
+                    <h2 class="section-subtitle" style="color:var(--brand-primary); font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">Learn • Explore • Grow</h2>
+                    <h1 class="hero-title" style="transform:translateZ(20px);">About LK SMART STUDIES</h1>
+                    <p class="section-subtitle" style="font-size:18px; color:#fff; font-weight:500; margin:0; transform:translateZ(15px); max-width:600px;">An organized digital learning space designed to bring study resources, guidance and useful educational updates together.</p>
+                </div>
+            </section>
+
+            <!-- SECTION 1: WHAT IS LK SMART STUDIES -->
+            <section class="reveal">
+                <h2 class="section-title">What is LK SMART STUDIES?</h2>
+                <div class="glass-panel card-3d" style="padding: 40px; background: linear-gradient(135deg, rgba(58,134,255,0.05) 0%, rgba(131,56,236,0.05) 100%);">
+                    <p style="font-size: 16px; color: var(--text-muted); line-height: 1.8; margin-bottom: 20px;">
+                        LK SMART STUDIES is a digital learning platform designed to organize educational resources in a simple, modern, and accessible way. 
+                    </p>
+                    <p style="font-size: 16px; color: var(--text-muted); line-height: 1.8;">
+                        Our platform is intended to bring different types of educational resources—from structured PDF notes to official scholarship updates and family guidance—into one unified, app-like environment. We aim to reduce the clutter and confusion often associated with finding reliable study material online.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECTION 2: OUR PURPOSE -->
+            <section class="reveal">
+                <h2 class="section-title">Our Purpose</h2>
+                <p class="section-subtitle">Core principles guiding the platform's development.</p>
+                <div class="grid-4">
+                    <div class="glass-panel card-3d content-card interactive">
+                        <div class="icon-box" style="margin-bottom:16px;">📚</div>
+                        <h3>Organized Learning</h3>
+                        <p>Help learners find educational resources in a structured and logical way.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive">
+                        <div class="icon-box" style="margin-bottom:16px;">🎯</div>
+                        <h3>Goal-Based</h3>
+                        <p>Help students filter resources specifically according to their unique educational goals.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive">
+                        <div class="icon-box" style="margin-bottom:16px;">💡</div>
+                        <h3>Simple Access</h3>
+                        <p>Keep the digital learning experience easy to understand and navigate for everyone.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive">
+                        <div class="icon-box" style="margin-bottom:16px;">📢</div>
+                        <h3>Useful Updates</h3>
+                        <p>Bring important educational opportunities and notices into one central place.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: FOR STUDENTS -->
+            <section class="reveal">
+                <h2 class="section-title">Built Around Student Needs</h2>
+                <p class="section-subtitle">The Student section is designed to organize resources according to the learner's specific goal.</p>
+                
+                <div class="glass-panel card-3d" style="padding: 30px;">
+                    <div class="tag-grid">
+                        <div class="tag">School</div>
+                        <div class="tag">Classes 1–12</div>
+                        <div class="tag">Boards</div>
+                        <div class="tag">Subjects</div>
+                        <div class="tag">PDF Notes</div>
+                        <div class="tag">Important / VVI</div>
+                        <div class="tag">PYQ</div>
+                        <div class="tag">Model Papers</div>
+                        <div class="tag">Exam Preparation</div>
+                        <div class="tag">Polytechnic / Diploma</div>
+                        <div class="tag">B.Tech</div>
+                        <div class="tag">Other Exams</div>
+                    </div>
+                    <div class="info-box" style="margin-top: 30px;">
+                        <svg class="icon-svg" style="color:var(--warning); flex-shrink:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <div>
+                            <strong style="color:#fff; font-size:14px; display:block; margin-bottom:4px;">Platform Concept</strong>
+                            <span style="font-size:13px; color:var(--text-muted); line-height:1.5; display:block;">These represent the intended categories and structure of the platform. Resource availability will grow as the database is populated.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: FOR FAMILY -->
+            <section class="reveal">
+                <h2 class="section-title">Supporting Families</h2>
+                <p class="section-subtitle">The Family section provides practical educational guidance for parents and family members to support learning at home.</p>
+                
+                <div class="grid-3">
+                    <div class="glass-panel card-3d content-card flex-row interactive">
+                        <div class="icon-box">❤️</div>
+                        <div><h3 style="margin-bottom:4px;">Student Motivation</h3></div>
+                    </div>
+                    <div class="glass-panel card-3d content-card flex-row interactive">
+                        <div class="icon-box">📚</div>
+                        <div><h3 style="margin-bottom:4px;">Study Support</h3></div>
+                    </div>
+                    <div class="glass-panel card-3d content-card flex-row interactive">
+                        <div class="icon-box">🕒</div>
+                        <div><h3 style="margin-bottom:4px;">Routine Support</h3></div>
+                    </div>
+                    <div class="glass-panel card-3d content-card flex-row interactive">
+                        <div class="icon-box">🏠</div>
+                        <div><h3 style="margin-bottom:4px;">Study Environment</h3></div>
+                    </div>
+                    <div class="glass-panel card-3d content-card flex-row interactive">
+                        <div class="icon-box">💬</div>
+                        <div><h3 style="margin-bottom:4px;">Communication</h3></div>
+                    </div>
+                    <div class="glass-panel card-3d content-card flex-row interactive">
+                        <div class="icon-box">🎯</div>
+                        <div><h3 style="margin-bottom:4px;">Exam Support</h3></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: FOR TEACHERS -->
+            <section class="reveal">
+                <h2 class="section-title">Teacher Workspace</h2>
+                <p class="section-subtitle">LK SMART STUDIES is designed with a dedicated Teacher area for future resource management.</p>
+                
+                <div class="grid-2">
+                    <div>
+                        <div class="grid-2" style="grid-template-columns: 1fr;">
+                            <div class="glass-panel card-3d content-card interactive" style="padding:16px;">
+                                <h3 style="margin-bottom:4px; font-size:15px; display:flex; align-items:center; gap:8px;">👨‍🏫 Teacher Workspace</h3>
+                            </div>
+                            <div class="glass-panel card-3d content-card interactive" style="padding:16px;">
+                                <h3 style="margin-bottom:4px; font-size:15px; display:flex; align-items:center; gap:8px;">📄 PDF Upload</h3>
+                            </div>
+                            <div class="glass-panel card-3d content-card interactive" style="padding:16px;">
+                                <h3 style="margin-bottom:4px; font-size:15px; display:flex; align-items:center; gap:8px;">✍️ Teacher Content</h3>
+                            </div>
+                            <div class="glass-panel card-3d content-card interactive" style="padding:16px;">
+                                <h3 style="margin-bottom:4px; font-size:15px; display:flex; align-items:center; gap:8px;">📢 Announcements</h3>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-panel card-3d" style="padding:30px; display:flex; flex-direction:column; justify-content:center; border-color:rgba(255, 77, 109, 0.3); background: linear-gradient(135deg, rgba(255, 77, 109, 0.05) 0%, transparent 100%);">
+                        <svg class="icon-svg" style="color:var(--danger); width:32px; height:32px; margin-bottom:16px;" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <h3 style="font-size:18px; margin-bottom:12px;">Important Note</h3>
+                        <p style="font-size:14px; color:var(--text-muted); line-height:1.6;">The Teacher Workspace interface is currently prepared as a frontend experience. Real authentication, database integration, and file-storage functionality will be connected in a future version. Uploads are not currently active.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 6: LEARNING RESOURCES -->
+            <section class="reveal">
+                <h2 class="section-title">Learning Resources</h2>
+                <p class="section-subtitle">Resources intended to be organized by educational goal, board, class, subject, and exam.</p>
+                <div class="grid-6">
+                    <div class="glass-panel card-3d content-card interactive" style="align-items:center; text-align:center; padding:20px;">
+                        <h3 style="margin:0; font-size:14px;">PDF Notes</h3>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive" style="align-items:center; text-align:center; padding:20px;">
+                        <h3 style="margin:0; font-size:14px;">Question Papers</h3>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive" style="align-items:center; text-align:center; padding:20px;">
+                        <h3 style="margin:0; font-size:14px;">PYQ</h3>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive" style="align-items:center; text-align:center; padding:20px;">
+                        <h3 style="margin:0; font-size:14px;">Model Papers</h3>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive" style="align-items:center; text-align:center; padding:20px;">
+                        <h3 style="margin:0; font-size:14px;">Important / VVI</h3>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive" style="align-items:center; text-align:center; padding:20px;">
+                        <h3 style="margin:0; font-size:14px;">Study Material</h3>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 7: EDUCATIONAL UPDATES -->
+            <section class="reveal">
+                <h2 class="section-title">Updates & Opportunities</h2>
+                <p class="section-subtitle">The Updates section is intended to organize useful information such as:</p>
+                
+                <div class="tag-grid" style="margin-bottom: 24px;">
+                    <div class="tag">Scholarships</div>
+                    <div class="tag">Examinations</div>
+                    <div class="tag">Admissions</div>
+                    <div class="tag">Results</div>
+                    <div class="tag">Admit Cards</div>
+                    <div class="tag">Government Jobs</div>
+                    <div class="tag">Important Notices</div>
+                </div>
+                
+                <div class="info-box">
+                    <svg class="icon-svg" style="color:var(--brand-primary); flex-shrink:0;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <div>
+                        <strong style="color:#fff; font-size:14px; display:block; margin-bottom:4px;">Official Sources</strong>
+                        <span style="font-size:13px; color:var(--text-muted); line-height:1.5; display:block;">Always verify important dates, eligibility, and application details on the official organization's source. Links provided are for discovery and guidance.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 8 & 9: DESIGN & PWA -->
+            <section class="reveal">
+                <h2 class="section-title">Designed Like an App</h2>
+                <p class="section-subtitle">The platform is designed to provide an app-like experience across mobile, tablet, and desktop.</p>
+                
+                <div class="grid-3" style="margin-bottom: 40px;">
+                    <div class="glass-panel card-3d content-card interactive">
+                        <div class="icon-box" style="margin-bottom:16px;">📱</div>
+                        <h3>Mobile First</h3>
+                        <p>Optimized for touch interfaces and small screens.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive">
+                        <div class="icon-box" style="margin-bottom:16px;">💻</div>
+                        <h3>Responsive</h3>
+                        <p>Adapts beautifully to laptops and large desktop monitors.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive">
+                        <div class="icon-box" style="margin-bottom:16px;">🧊</div>
+                        <h3>3D Interface</h3>
+                        <p>Modern glassmorphism and depth for a premium feel.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive">
+                        <div class="icon-box" style="margin-bottom:16px;">⚡</div>
+                        <h3>Lightweight</h3>
+                        <p>Built with native technologies for fast performance.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive">
+                        <div class="icon-box" style="margin-bottom:16px;">🎨</div>
+                        <h3>Consistent</h3>
+                        <p>A unified visual language across every single page.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive">
+                        <div class="icon-box" style="margin-bottom:16px;">🌐</div>
+                        <h3>PWA Ready</h3>
+                        <p>Designed with Progressive Web App compatibility in mind.</p>
+                    </div>
+                </div>
+                
+                <div class="glass-panel card-3d" style="padding: 30px; text-align:center;">
+                    <h3 style="margin-bottom:12px;">App-Like Experience</h3>
+                    <p style="color:var(--text-muted); font-size:14px; max-width:600px; margin:0 auto; line-height:1.6;">LK SMART STUDIES is being designed with PWA compatibility in mind. Once fully configured, this will allow the website to be installed directly to your device's home screen for a seamless, native-app feel without needing an app store.</p>
+                </div>
+            </section>
+
+            <!-- SECTION 10: PLATFORM STATUS -->
+            <section class="reveal">
+                <h2 class="section-title">Platform Status</h2>
+                <p class="section-subtitle">Current development and feature availability.</p>
+                
+                <div class="grid-4">
+                    <div class="glass-panel card-3d content-card">
+                        <h3 style="font-size:16px; margin-bottom:12px;">Intro Experience</h3>
+                        <span class="status-badge status-available"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Designed</span>
+                    </div>
+                    <div class="glass-panel card-3d content-card">
+                        <h3 style="font-size:16px; margin-bottom:12px;">Home Dashboard</h3>
+                        <span class="status-badge status-available"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Designed</span>
+                    </div>
+                    <div class="glass-panel card-3d content-card">
+                        <h3 style="font-size:16px; margin-bottom:12px;">Student Hub</h3>
+                        <span class="status-badge status-available"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Designed</span>
+                    </div>
+                    <div class="glass-panel card-3d content-card">
+                        <h3 style="font-size:16px; margin-bottom:12px;">Family Hub</h3>
+                        <span class="status-badge status-available"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Designed</span>
+                    </div>
+                    <div class="glass-panel card-3d content-card">
+                        <h3 style="font-size:16px; margin-bottom:12px;">Teacher Workspace</h3>
+                        <span class="status-badge status-pending"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Backend Pending</span>
+                    </div>
+                    <div class="glass-panel card-3d content-card">
+                        <h3 style="font-size:16px; margin-bottom:12px;">Live Database</h3>
+                        <span class="status-badge status-future"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg> Future Integration</span>
+                    </div>
+                    <div class="glass-panel card-3d content-card">
+                        <h3 style="font-size:16px; margin-bottom:12px;">Real PDF Storage</h3>
+                        <span class="status-badge status-future"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg> Future Integration</span>
+                    </div>
+                    <div class="glass-panel card-3d content-card">
+                        <h3 style="font-size:16px; margin-bottom:12px;">Authentication</h3>
+                        <span class="status-badge status-future"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg> Future Integration</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 11: FUTURE VISION -->
+            <section class="reveal">
+                <h2 class="section-title">Our Future Vision</h2>
+                <div class="glass-panel card-3d" style="padding: 40px; background: linear-gradient(135deg, rgba(58,134,255,0.1) 0%, rgba(131,56,236,0.1) 100%); border-color: rgba(131,56,236,0.3);">
+                    <ul style="list-style:none; display:flex; flex-direction:column; gap:16px; color:#fff; font-size:15px; margin-bottom:24px;">
+                        <li style="display:flex; align-items:center; gap:12px;"><svg class="icon-svg" style="color:var(--brand-primary); flex-shrink:0;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Better resource organization and filtering.</li>
+                        <li style="display:flex; align-items:center; gap:12px;"><svg class="icon-svg" style="color:var(--brand-primary); flex-shrink:0;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Real-time educational updates and notifications.</li>
+                        <li style="display:flex; align-items:center; gap:12px;"><svg class="icon-svg" style="color:var(--brand-primary); flex-shrink:0;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Functional Teacher resource management.</li>
+                        <li style="display:flex; align-items:center; gap:12px;"><svg class="icon-svg" style="color:var(--brand-primary); flex-shrink:0;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Secure authentication for personalized experiences.</li>
+                        <li style="display:flex; align-items:center; gap:12px;"><svg class="icon-svg" style="color:var(--brand-primary); flex-shrink:0;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Real PDF storage and database integration.</li>
+                        <li style="display:flex; align-items:center; gap:12px;"><svg class="icon-svg" style="color:var(--brand-primary); flex-shrink:0;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Improved PWA experience for mobile users.</li>
+                    </ul>
+                    <p style="font-size:13px; color:var(--text-muted); font-style:italic;">* These are planned directions and may evolve as the platform develops over time.</p>
+                </div>
+            </section>
+
+            <!-- SECTION 12: WHY LK SMART STUDIES? -->
+            <section class="reveal">
+                <h2 class="section-title">Why LK SMART STUDIES?</h2>
+                <div class="grid-3">
+                    <div class="glass-panel card-3d content-card interactive" style="padding:20px;">
+                        <h3 style="font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">🎯 Goal Focused</h3>
+                        <p style="font-size:13px;">Find exactly what you need.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive" style="padding:20px;">
+                        <h3 style="font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">📚 Organized Resources</h3>
+                        <p style="font-size:13px;">Clean and logical structure.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive" style="padding:20px;">
+                        <h3 style="font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">📱 App-Like Experience</h3>
+                        <p style="font-size:13px;">Fast and smooth interface.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive" style="padding:20px;">
+                        <h3 style="font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">💡 Student & Family</h3>
+                        <p style="font-size:13px;">Support beyond the classroom.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive" style="padding:20px;">
+                        <h3 style="font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">👨‍🏫 Teacher Space</h3>
+                        <p style="font-size:13px;">Dedicated educator tools.</p>
+                    </div>
+                    <div class="glass-panel card-3d content-card interactive" style="padding:20px;">
+                        <h3 style="font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">📢 Useful Updates</h3>
+                        <p style="font-size:13px;">Important notices in one place.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 13: OUR APPROACH -->
+            <section class="reveal">
+                <h2 class="section-title">Simple. Organized. Useful.</h2>
+                <div class="grid-3">
+                    <div class="glass-panel card-3d content-card number-card interactive">
+                        <div class="giant-number">01</div>
+                        <div class="number-card-content">
+                            <h3 style="font-size:22px; color:var(--brand-primary);">Simple</h3>
+                            <p style="font-size:14px;">Removing digital clutter so you can focus entirely on learning.</p>
+                        </div>
+                    </div>
+                    <div class="glass-panel card-3d content-card number-card interactive">
+                        <div class="giant-number">02</div>
+                        <div class="number-card-content">
+                            <h3 style="font-size:22px; color:var(--brand-secondary);">Organized</h3>
+                            <p style="font-size:14px;">Structuring materials logically by board, class, and subject.</p>
+                        </div>
+                    </div>
+                    <div class="glass-panel card-3d content-card number-card interactive">
+                        <div class="giant-number">03</div>
+                        <div class="number-card-content">
+                            <h3 style="font-size:22px; color:#2ec4b6;">Useful</h3>
+                            <p style="font-size:14px;">Providing real value through verified updates and resources.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 14: QUICK ACCESS -->
+            <section class="reveal">
+                <h2 class="section-title">Quick Navigation</h2>
+                <div class="grid-6">
+                    <div class="glass-panel card-3d interactive" style="padding:16px; text-align:center; font-size:14px; font-weight:600;">👨‍🎓 Student</div>
+                    <div class="glass-panel card-3d interactive" style="padding:16px; text-align:center; font-size:14px; font-weight:600;">👨‍👩‍👧 Family</div>
+                    <div class="glass-panel card-3d interactive" style="padding:16px; text-align:center; font-size:14px; font-weight:600;">👨‍🏫 Teacher</div>
+                    <div class="glass-panel card-3d interactive" style="padding:16px; text-align:center; font-size:14px; font-weight:600;">🆕 Updates</div>
+                    <div class="glass-panel card-3d interactive" style="padding:16px; text-align:center; font-size:14px; font-weight:600;">❓ Help & FAQ</div>
+                </div>
+            </section>
+
+            <!-- SECTION 15: SUPPORT MESSAGE -->
+            <section class="reveal">
+                <div class="glass-panel card-3d" style="padding:60px 30px; text-align:center; border-color: rgba(58, 134, 255, 0.3); background: linear-gradient(0deg, rgba(58, 134, 255, 0.05) 0%, transparent 100%);">
+                    <h2 class="hero-title" style="font-size:32px; margin-bottom:16px;">Learning Is a Journey</h2>
+                    <p style="font-size:18px; color:#fff; font-weight:500; font-style:italic; max-width:700px; margin:0 auto;">"Keep learning, keep improving, and take the next step one day at a time."</p>
+                </div>
+            </section>
+
+            <!-- SECTION 16: CONTACT PREVIEW -->
+            <section class="reveal">
+                <div class="grid-2">
+                    <div>
+                        <h2 class="section-title">Want to Know More?</h2>
+                        <p class="section-subtitle">If you have questions about the platform or need further assistance, our support sections are available.</p>
+                    </div>
+                    <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+                        <button class="btn btn-outline" style="pointer-events:none;">Contact Support</button>
+                        <button class="btn btn-primary" style="pointer-events:none;">Help & FAQ</button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+        
+        <!-- FOOTER -->
+        <footer class="main-footer">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <h3>LK SMART STUDIES</h3>
+                        <p style="font-weight:bold; color:var(--brand-primary); margin-bottom:10px; text-transform:uppercase; font-size:12px; letter-spacing:2px;">Learn • Explore • Grow</p>
+                        <p style="color:var(--text-muted); max-width:300px; line-height:1.6;">Your premium digital learning platform for structured notes and educational resources.</p>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Explore</h4>
+                        <ul>
+                            <li><a href="#">Student Dashboard</a></li>
+                            <li><a href="#">PDF Notes</a></li>
+                            <li><a href="#">Exam Preparation</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Community</h4>
+                        <ul>
+                            <li><a href="#">Family Support</a></li>
+                            <li><a href="#">Teacher Corner</a></li>
+                            <li><a href="#">Latest Updates</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Legal & Help</h4>
+                        <ul>
+                            <li><a href="#">Help & FAQ</a></li>
+                            <li><a href="#">About Us</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; LK SMART STUDIES. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item"><svg class="icon-svg"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+        <a href="#" class="nav-item"><svg class="icon-svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Student</a>
+        <a href="#" class="nav-item"><svg class="icon-svg"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Family</a>
+        <a href="#" class="nav-item"><svg class="icon-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Updates</a>
+        <a href="#" class="nav-item"><svg class="icon-svg"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg> More</a>
+    </nav>
+
+    <!-- FRONTEND JAVASCRIPT LOGIC -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Prevent default behavior for placeholder links/buttons
+            document.querySelectorAll('a, button').forEach(el => {
+                if(!el.hasAttribute('onclick')) {
+                    el.addEventListener('click', (e) => e.preventDefault());
+                }
+            });
+
+            // Intersection Observer for Scroll Animations
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            
+            if (!prefersReducedMotion) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                            obs.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+                document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            } else {
+                document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
+            }
+
+            // Desktop 3D Card Hover Effect (Lightweight Parallax)
+            if (window.innerWidth > 768 && !prefersReducedMotion) {
+                const cards = document.querySelectorAll('.card-3d.interactive');
+                
+                cards.forEach(card => {
+                    card.addEventListener('mousemove', e => {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        
+                        card.style.setProperty('--mouse-x', `${x}px`);
+                        card.style.setProperty('--mouse-y', `${y}px`);
+                        
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
+                        const rotateX = ((y - centerY) / centerY) * -4;
+                        const rotateY = ((x - centerX) / centerX) * 4;
+                        
+                        card.style.transform = `perspective(1000px) scale(1.02) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+                    });
+                    
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = ``;
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

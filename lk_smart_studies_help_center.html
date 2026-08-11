@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0f1c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Help & FAQ - LK SMART STUDIES</title>
+    
+    <style>
+        /* ==================================================
+           CSS VARIABLES & RESET (MATCHING BRAND SYSTEM)
+           ================================================== */
+        :root {
+            --bg-dark: #0a0f1c;
+            --brand-primary: #3a86ff;
+            --brand-secondary: #8338ec;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-card: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-border-hover: rgba(255, 255, 255, 0.25);
+            --text-main: #ffffff;
+            --text-muted: #a0a5b5;
+            
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --sidebar-width: 260px;
+            
+            --gradient-primary: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            --gradient-text: linear-gradient(135deg, #ffffff 0%, #b0c4de 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body, html { width: 100%; background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; scroll-behavior: smooth; }
+
+        /* ==================================================
+           APP LAYOUT (SIDEBAR + MAIN CONTENT)
+           ================================================== */
+        .app-container { display: flex; min-height: 100vh; width: 100%; position: relative; z-index: 2; }
+
+        .sidebar {
+            width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0;
+            background: rgba(10, 15, 28, 0.8); backdrop-filter: blur(20px); border-right: 1px solid var(--glass-border);
+            padding: calc(30px + var(--safe-top)) 20px 30px; display: none; flex-direction: column; z-index: 100;
+        }
+
+        .brand-logo { font-size: 18px; font-weight: 800; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; letter-spacing: 1px; margin-bottom: 50px; }
+        .brand-logo svg { width: 24px; height: 24px; color: var(--brand-primary); }
+
+        .side-nav { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .side-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 15px; transition: all 0.3s; }
+        .side-link svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
+        .side-link:hover { background: var(--glass-card); color: #fff; }
+        .side-link.active { background: rgba(58, 134, 255, 0.1); color: var(--brand-primary); border: 1px solid rgba(58, 134, 255, 0.2); }
+
+        .main-content { flex-grow: 1; width: 100%; padding-bottom: calc(80px + var(--safe-bottom)); }
+
+        @media (min-width: 1024px) {
+            .sidebar { display: flex; }
+            .main-content { margin-left: var(--sidebar-width); padding-bottom: 40px; }
+        }
+
+        /* ==================================================
+           APP HEADER
+           ================================================== */
+        .app-header {
+            position: sticky; top: 0; z-index: 90; height: calc(70px + var(--safe-top));
+            background: rgba(10, 15, 28, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border); padding: var(--safe-top) 20px 0;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-title { font-size: 18px; font-weight: 700; display: none; }
+        .mobile-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; color: #fff; text-decoration: none; }
+        .mobile-brand svg { width: 20px; height: 20px; color: var(--brand-primary); }
+
+        @media (min-width: 1024px) {
+            .mobile-brand { display: none; }
+            .header-title { display: block; }
+        }
+
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .action-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+        .action-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+        .icon-svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ==================================================
+           AMBIENT BACKGROUND
+           ================================================== */
+        .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; overflow: hidden; perspective: 1000px; }
+        .glow { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.3; animation: pulseBg 12s infinite alternate ease-in-out; }
+        .glow-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, var(--brand-secondary) 0%, transparent 60%); }
+        .glow-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--brand-primary) 0%, transparent 60%); animation-delay: -5s; }
+
+        @keyframes pulseBg { 0% { transform: scale(1); opacity: 0.2; } 100% { transform: scale(1.1); opacity: 0.4; } }
+
+        /* ==================================================
+           UI COMPONENTS & TYPOGRAPHY
+           ================================================== */
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        section { margin-bottom: 60px; }
+        
+        .section-title { font-size: clamp(24px, 4vw, 32px); font-weight: 800; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+        .section-subtitle { font-size: clamp(14px, 3vw, 16px); color: var(--text-muted); margin-bottom: 30px; font-weight: 500; }
+        .sub-heading { font-size: 20px; font-weight: 700; margin-bottom: 24px; color: #fff; display: flex; align-items: center; gap: 10px; margin-top: 40px; }
+        .sub-heading::before { content: ''; width: 4px; height: 16px; background: var(--gradient-primary); border-radius: 2px; }
+
+        .glass-panel { background: var(--glass-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); }
+        
+        /* 3D Card System */
+        .card-3d { position: relative; transform-style: preserve-3d; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .card-3d.interactive { cursor: pointer; overflow: hidden; }
+        .card-3d.interactive::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.08), transparent 40%); z-index: 1; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+        .card-3d.interactive:hover { transform: translateY(-6px) scale(1.02); border-color: var(--glass-border-hover); box-shadow: 0 15px 35px -10px rgba(0,0,0,0.6), 0 0 20px rgba(58,134,255,0.15), inset 0 1px 0 rgba(255,255,255,0.2); }
+        .card-3d.interactive:hover::before { opacity: 1; }
+        .card-3d.interactive:active { transform: translateY(-2px) scale(0.98); }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; font-weight: 600; border-radius: 12px; border: none; cursor: pointer; transition: all 0.3s; font-size: 14px; gap: 8px; }
+        .btn-primary { background: var(--gradient-primary); color: #fff; box-shadow: 0 4px 15px rgba(58, 134, 255, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(58, 134, 255, 0.5); }
+        
+        .grid-2 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(1, 1fr); gap: 16px; }
+        @media (min-width: 600px) { .grid-2 { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 768px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+
+        /* ==================================================
+           HERO & SEARCH
+           ================================================== */
+        .hero-section { text-align: center; padding: 40px 0; position: relative; }
+        .hero-card { padding: 50px 30px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; background: linear-gradient(180deg, rgba(58, 134, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%); border-color: rgba(58, 134, 255, 0.3); }
+        .hero-title { font-size: clamp(32px, 6vw, 48px); font-weight: 800; margin-bottom: 16px; background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; transform: translateZ(20px); }
+        
+        .hero-floating-elements { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; transform-style: preserve-3d; }
+        .hero-float-icon { position: absolute; font-size: 30px; opacity: 0.8; animation: floatObject 8s infinite alternate ease-in-out; filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
+        
+        @keyframes floatObject { 0% { transform: translateY(0) translateZ(30px) rotate(0deg); } 100% { transform: translateY(-20px) translateZ(30px) rotate(15deg); } }
+
+        .search-box { position: relative; width: 100%; margin: -30px auto 40px; transform-style: preserve-3d; z-index: 10; max-width: 800px; }
+        .search-input { width: 100%; padding: 22px 22px 22px 64px; background: rgba(10, 15, 28, 0.9); border: 1px solid rgba(58, 134, 255, 0.4); border-radius: 16px; color: #fff; font-size: 16px; outline: none; backdrop-filter: blur(16px); box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 20px rgba(58, 134, 255, 0.1); transition: all 0.3s; }
+        .search-input:focus { border-color: var(--brand-primary); box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 30px rgba(58, 134, 255, 0.3); }
+        .search-icon { position: absolute; left: 24px; top: 50%; transform: translateY(-50%); color: var(--brand-primary); }
+
+        /* ==================================================
+           CATEGORY FILTERS & QUICK HELP
+           ================================================== */
+        .filter-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 40px; scrollbar-width: none; scroll-snap-type: x mandatory; }
+        .filter-scroll::-webkit-scrollbar { display: none; }
+        .filter-pill { flex: 0 0 auto; scroll-snap-align: start; padding: 10px 20px; background: var(--glass-card); border: 1px solid var(--glass-border); border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .filter-pill:hover { background: rgba(255,255,255,0.1); }
+        .filter-pill.active { background: rgba(58, 134, 255, 0.2); border-color: var(--brand-primary); color: #fff; }
+
+        .quick-help-card { padding: 20px; display: flex; align-items: center; gap: 16px; }
+        .quick-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; color: var(--brand-primary); }
+        .quick-help-card:hover .quick-icon { background: var(--gradient-primary); color: #fff; border-color: transparent; }
+
+        /* ==================================================
+           FAQ ACCORDION SYSTEM
+           ================================================== */
+        .faq-group { margin-bottom: 40px; }
+        
+        .faq-item { background: var(--glass-card); border: 1px solid var(--glass-border); border-radius: 16px; margin-bottom: 16px; overflow: hidden; transition: all 0.3s; transform-style: preserve-3d; }
+        .faq-header { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s; user-select: none; }
+        .faq-header:hover { background: rgba(255,255,255,0.02); }
+        .faq-icon { transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); color: var(--brand-primary); width: 20px; height: 20px; flex-shrink: 0; }
+        
+        /* Accordion expansion magic */
+        .faq-body { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.5s ease, opacity 0.4s ease, padding 0.5s ease; color: var(--text-muted); font-size: 15px; line-height: 1.6; }
+        
+        .faq-item.active { border-color: rgba(58, 134, 255, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1); background: rgba(58, 134, 255, 0.03); }
+        .faq-item.active .faq-header { color: #fff; }
+        .faq-item.active .faq-icon { transform: rotate(180deg); }
+        .faq-item.active .faq-body { max-height: 500px; opacity: 1; padding: 0 24px 24px 24px; }
+
+        .search-empty { text-align: center; padding: 60px 20px; display: none; }
+
+        /* ==================================================
+           FEATURE STATUS CARDS
+           ================================================== */
+        .status-card { padding: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .status-badge { padding: 6px 12px; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 8px; letter-spacing: 0.5px; border: 1px solid transparent; display: flex; align-items: center; gap: 6px; }
+        
+        .status-available { background: rgba(46, 196, 182, 0.15); color: #2ec4b6; border-color: rgba(46, 196, 182, 0.3); }
+        .status-pending { background: rgba(255, 183, 3, 0.15); color: #ffb703; border-color: rgba(255, 183, 3, 0.3); }
+        .status-future { background: rgba(255, 77, 109, 0.15); color: #ff4d6d; border-color: rgba(255, 77, 109, 0.3); }
+
+        /* ==================================================
+           BACK TO TOP BUTTON
+           ================================================== */
+        .back-to-top { position: fixed; bottom: calc(90px + var(--safe-bottom)); right: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--gradient-primary); color: #fff; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px rgba(58, 134, 255, 0.4); display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; visibility: hidden; transform: translateY(20px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 90; }
+        .back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+        .back-to-top:hover { transform: translateY(-4px) scale(1.1); }
+        @media (min-width: 1024px) { .back-to-top { bottom: 40px; right: 40px; } }
+
+        /* ==================================================
+           MOBILE BOTTOM NAVIGATION
+           ================================================== */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(10, 15, 28, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); z-index: 100; padding-bottom: var(--safe-bottom); display: flex; justify-content: space-around; align-items: center; height: calc(70px + var(--safe-bottom)); }
+        @media (min-width: 1024px) { .bottom-nav { display: none; } }
+        
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-decoration: none; font-size: 11px; gap: 4px; width: 20%; height: 100%; transition: color 0.2s; }
+        .nav-item.active { color: var(--brand-primary); }
+        .nav-item svg { width: 22px; height: 22px; stroke-width: 2; }
+        .nav-item.active svg { fill: rgba(58, 134, 255, 0.2); }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) { 
+            .reveal { opacity: 1; transform: none; transition: none; } 
+            .card-3d { transition: none; transform: none !important; } 
+            .glow, .hero-float-icon { animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTopBtn" aria-label="Scroll to top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+    </button>
+
+    <div class="app-container">
+        
+        <!-- DESKTOP SIDEBAR -->
+        <aside class="sidebar">
+            <a href="#" class="brand-logo">
+                <svg viewBox="0 0 24 24" class="icon-svg" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                LK SMART STUDIES
+            </a>
+            <nav class="side-nav">
+                <a href="#" class="side-link"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+                <a href="#" class="side-link"><svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Student Hub</a>
+                <a href="#" class="side-link"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Latest Updates</a>
+                <a href="#" class="side-link active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Help & FAQ</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            
+            <!-- APP HEADER -->
+            <header class="app-header">
+                <div class="header-left">
+                    <a href="#" class="mobile-brand">
+                        <svg viewBox="0 0 24 24" class="icon-svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        LK SMART STUDIES
+                    </a>
+                    <h2 class="header-title">Help Center</h2>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn" aria-label="Search" onclick="document.getElementById('faq-search').focus()"><svg class="icon-svg"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+                    <button class="action-btn" aria-label="Notifications" id="desktop-bell" style="display:none;"><svg class="icon-svg"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                    <button class="action-btn" aria-label="Menu" id="mobile-menu"><svg class="icon-svg"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+                </div>
+            </header>
+
+            <div class="container">
+                
+                <!-- HERO SECTION -->
+                <section class="hero-section reveal">
+                    <div class="glass-panel card-3d hero-card">
+                        
+                        <div class="hero-floating-elements">
+                            <div class="hero-float-icon" style="top:10%; left:15%; animation-delay:0s;">❓</div>
+                            <div class="hero-float-icon" style="top:20%; right:15%; animation-delay:-2s;">💡</div>
+                            <div class="hero-float-icon" style="bottom:15%; left:25%; animation-delay:-4s;">📚</div>
+                            <div class="hero-float-icon" style="bottom:20%; right:20%; animation-delay:-1s;">📄</div>
+                            <div class="hero-float-icon" style="top:40%; left:5%; animation-delay:-3s;">🎓</div>
+                        </div>
+
+                        <h1 class="hero-title">Help & FAQ</h1>
+                        <p class="section-subtitle" style="font-size:16px; color:#fff; font-weight:600; margin:0; transform:translateZ(15px);">Find answers and learn how to use LK SMART STUDIES.</p>
+                    </div>
+                </section>
+
+                <!-- SEARCH -->
+                <div class="search-box reveal">
+                    <svg viewBox="0 0 24 24" class="icon-svg search-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="faq-search" class="search-input" placeholder="Search your question..." oninput="handleSearch()">
+                </div>
+
+                <!-- QUICK HELP CARDS -->
+                <section class="reveal">
+                    <h2 class="section-title">Quick Help</h2>
+                    <div class="grid-3">
+                        <div class="glass-panel card-3d interactive quick-help-card" onclick="setFilter('STUDENT')">
+                            <div class="quick-icon">📚</div> <h4>Student Help</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive quick-help-card" onclick="setFilter('FAMILY')">
+                            <div class="quick-icon">👨‍👩‍👧</div> <h4>Family Help</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive quick-help-card" onclick="setFilter('TEACHER')">
+                            <div class="quick-icon">👨‍🏫</div> <h4>Teacher Help</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive quick-help-card" onclick="setFilter('PDF & NOTES')">
+                            <div class="quick-icon">📄</div> <h4>PDF Help</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive quick-help-card" onclick="setFilter('PYQ')">
+                            <div class="quick-icon">📝</div> <h4>PYQ Help</h4>
+                        </div>
+                        <div class="glass-panel card-3d interactive quick-help-card" onclick="setFilter('UPDATES')">
+                            <div class="quick-icon">🆕</div> <h4>Updates Help</h4>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CATEGORY FILTERS -->
+                <section class="reveal">
+                    <div class="filter-scroll" id="filter-container">
+                        <div class="filter-pill active" onclick="setFilter('ALL')">ALL</div>
+                        <div class="filter-pill" onclick="setFilter('GENERAL')">GENERAL</div>
+                        <div class="filter-pill" onclick="setFilter('STUDENT')">STUDENT</div>
+                        <div class="filter-pill" onclick="setFilter('FAMILY')">FAMILY</div>
+                        <div class="filter-pill" onclick="setFilter('TEACHER')">TEACHER</div>
+                        <div class="filter-pill" onclick="setFilter('PDF & NOTES')">PDF & NOTES</div>
+                        <div class="filter-pill" onclick="setFilter('PYQ')">PYQ & MODEL</div>
+                        <div class="filter-pill" onclick="setFilter('SCHOLARSHIP')">SCHOLARSHIPS</div>
+                        <div class="filter-pill" onclick="setFilter('UPDATES')">UPDATES</div>
+                        <div class="filter-pill" onclick="setFilter('WEBSITE')">WEBSITE & PWA</div>
+                    </div>
+                </section>
+
+                <!-- EMPTY SEARCH STATE -->
+                <div class="glass-panel search-empty" id="search-empty">
+                    <svg viewBox="0 0 24 24" width="64" height="64" stroke="var(--text-muted)" stroke-width="1.5" fill="none" style="margin-bottom:20px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <h3 style="font-size:20px; margin-bottom:12px;">No matching question found.</h3>
+                    <p style="color:var(--text-muted);">Try using different keywords or browse the categories.</p>
+                </div>
+
+                <!-- FAQ CONTENT ACCORDIONS -->
+                <div id="faq-container">
+                    
+                    <!-- 1. GENERAL -->
+                    <div class="faq-group reveal" data-category="GENERAL">
+                        <h2 class="sub-heading">General FAQ</h2>
+                        
+                        <div class="faq-item">
+                            <div class="faq-header">What is LK SMART STUDIES? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">LK SMART STUDIES is a premium digital learning platform designed to provide structured study resources, PDF notes, previous year question papers, and educational updates for students across various academic levels.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">What can I find on LK SMART STUDIES? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">You can find organized PDF notes, PYQs (Previous Year Questions), model papers, scholarship updates, admission notices, and guidance for students, families, and teachers.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">Is LK SMART STUDIES a website or an app? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">It is a highly responsive web application that works seamlessly on both mobile browsers and desktop computers. It can also be installed as a PWA (Progressive Web App) on your device.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">How can I start using the website? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">Simply navigate to the Home page or Student Hub, select your educational goal (like School or Polytechnic), and browse the structured subjects and resources.</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. STUDENT -->
+                    <div class="faq-group reveal" data-category="STUDENT">
+                        <h2 class="sub-heading">Student FAQ</h2>
+                        
+                        <div class="faq-item">
+                            <div class="faq-header">How do I choose my study goal? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">Go to the Student Hub page. The first section will ask you to choose between School, Polytechnic/Diploma, B.Tech, or Other Exams. Click your goal to proceed.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">How do I select School, Board, and Class? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">Once you click "School" on the Student Hub, a step-by-step interface will appear. First, choose your Board (e.g., CBSE, BSEB), then select your Class, and finally pick a Subject to see available resources.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">How do I find Polytechnic or B.Tech resources? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">Select the respective card on the Student Hub. You will then be guided to select your State/System, followed by your admission type, semester/year, and finally your branch.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">How does Exam Preparation work? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">The Exam Preparation section provides structured guidance, motivation, and study strategies to help you efficiently complete your syllabus and manage exam pressure.</div>
+                        </div>
+                    </div>
+
+                    <!-- 3. FAMILY -->
+                    <div class="faq-group reveal" data-category="FAMILY">
+                        <h2 class="sub-heading">Family FAQ</h2>
+                        
+                        <div class="faq-item">
+                            <div class="faq-header">What is the Family section? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">It is a dedicated hub for parents and guardians. It provides educational advice on how to support a student's learning journey at home, beyond the classroom.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">How can parents support a student? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">Parents can support students by encouraging consistent effort, helping organize study materials, creating a quiet environment, and listening without judgment.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">How can parents support exam preparation? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">By respecting study time, reducing unnecessary pressure, keeping communication positive, and helping ensure they have all necessary tools ready before exam day.</div>
+                        </div>
+                    </div>
+
+                    <!-- 4. TEACHER -->
+                    <div class="faq-group reveal" data-category="TEACHER">
+                        <h2 class="sub-heading">Teacher FAQ</h2>
+                        
+                        <div class="faq-item">
+                            <div class="faq-header">What is the Teacher section? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">The Teacher Workspace is designed for educators to upload PDFs, write educational content, publish announcements, and manage their shared resources.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">Why is Teacher Upload currently unavailable? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">The current Teacher Workspace is a frontend UI preview. The features are visually complete, but actions like file uploading, publishing, and real-time database management are pending backend integration.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">When will the real Teacher system be connected? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">Authentication, secure file storage, and Airtable/Database connections will be implemented in a future update by the development team.</div>
+                        </div>
+                    </div>
+
+                    <!-- 5. PDF & NOTES -->
+                    <div class="faq-group reveal" data-category="PDF & NOTES">
+                        <h2 class="sub-heading">PDF & Notes FAQ</h2>
+                        
+                        <div class="faq-item">
+                            <div class="faq-header">Where will PDF Notes be available? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">PDF notes are available in the Student Hub after you select your specific goal, class, and subject. They are also highlighted on the main Home dashboard.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">How will PDFs be organized? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">PDFs are strictly categorized by Board/State, Class/Semester, Subject, and type (e.g., Notes, Formulas, Important/VVI).</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">Can I search for a PDF? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">Yes, you can use the global search bar on the Home page or the dedicated search box inside the Student Hub to find specific PDF resources quickly.</div>
+                        </div>
+                    </div>
+
+                    <!-- 6. PYQ & MODEL PAPER -->
+                    <div class="faq-group reveal" data-category="PYQ">
+                        <h2 class="sub-heading">PYQ & Model Paper FAQ</h2>
+                        
+                        <div class="faq-item">
+                            <div class="faq-header">What is PYQ? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">PYQ stands for Previous Year Question paper. Practicing these helps you understand the exam pattern and frequently asked concepts.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">Where can I find previous year question papers? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">You can find them in the dedicated "Question Papers & PYQ" section within the Student Hub, filtered by your specific board or exam.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">What are Model Papers and how are they different? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">Model Papers are practice sets created based on the latest exam syllabus and format. Unlike PYQs (which are past official exams), Model Papers contain highly probable questions for upcoming exams.</div>
+                        </div>
+                    </div>
+
+                    <!-- 7. SCHOLARSHIP & 8. UPDATES (Combined logic for flow) -->
+                    <div class="faq-group reveal" data-category="SCHOLARSHIP">
+                        <h2 class="sub-heading">Updates & Scholarship FAQ</h2>
+                        
+                        <div class="faq-item">
+                            <div class="faq-header">What is the Latest Updates section? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">It is a central hub for verified, current student opportunities including scholarships, exam notices, government jobs, results, and admit cards.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">What is PMS and NSP? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">PMS (Post Matric Scholarship) is a state-level scheme (e.g., Bihar PMS) for higher education funding. NSP (National Scholarship Portal) is the central government portal for national-level scholarships.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">Where should I apply for a scholarship? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">LK SMART STUDIES provides information and official links. You must always verify eligibility and submit your application on the verified official government portal.</div>
+                        </div>
+                    </div>
+
+                    <!-- 9. WEBSITE & 10. PWA -->
+                    <div class="faq-group reveal" data-category="WEBSITE">
+                        <h2 class="sub-heading">Website & PWA FAQ</h2>
+                        
+                        <div class="faq-item">
+                            <div class="faq-header">What is a PWA? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">PWA stands for Progressive Web App. It allows you to "install" the LK SMART STUDIES website onto your mobile or desktop device directly from your browser, without needing to visit an app store.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">Does PWA require an Android app? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">No. PWA technology runs through your web browser. You can simply tap "Add to Home Screen" in your browser menu, and it will function like a native app.</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-header">How can I return to Home? <svg class="icon-svg faq-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                            <div class="faq-body">You can return to the Home dashboard at any time by clicking the LK SMART STUDIES logo in the top header, or by using the bottom navigation menu on mobile.</div>
+                        </div>
+                    </div>
+                    
+                </div> <!-- End FAQ Container -->
+
+                <!-- 11. CURRENT FEATURE AVAILABILITY -->
+                <section class="reveal">
+                    <h2 class="section-title">Feature Status</h2>
+                    <p class="section-subtitle">Current availability of platform features.</p>
+                    
+                    <div class="grid-2">
+                        <div class="glass-panel card-3d status-card">
+                            <h4 style="font-size:16px;">Student Hub UI</h4>
+                            <span class="status-badge status-available"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Available</span>
+                        </div>
+                        <div class="glass-panel card-3d status-card">
+                            <h4 style="font-size:16px;">Family Hub UI</h4>
+                            <span class="status-badge status-available"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Available</span>
+                        </div>
+                        <div class="glass-panel card-3d status-card">
+                            <h4 style="font-size:16px;">Teacher Workspace</h4>
+                            <span class="status-badge status-pending"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Integration Pending</span>
+                        </div>
+                        <div class="glass-panel card-3d status-card">
+                            <h4 style="font-size:16px;">Real PDF Uploads</h4>
+                            <span class="status-badge status-future"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg> Coming Soon</span>
+                        </div>
+                        <div class="glass-panel card-3d status-card">
+                            <h4 style="font-size:16px;">Authentication</h4>
+                            <span class="status-badge status-future"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg> Coming Soon</span>
+                        </div>
+                        <div class="glass-panel card-3d status-card">
+                            <h4 style="font-size:16px;">Database / Airtable</h4>
+                            <span class="status-badge status-future"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg> Future Integration</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 12. CONTACT / SUPPORT -->
+                <section class="reveal">
+                    <h2 class="section-title">Still Need Help?</h2>
+                    <div class="glass-panel card-3d" style="padding: 40px; text-align: center; border-color: rgba(131, 56, 236, 0.3); background: linear-gradient(135deg, rgba(58, 134, 255, 0.05) 0%, rgba(131, 56, 236, 0.1) 100%);">
+                        <svg viewBox="0 0 24 24" width="48" height="48" stroke="var(--brand-secondary)" stroke-width="1.5" fill="none" style="margin-bottom:16px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <h3 style="font-size: 24px; margin-bottom: 12px;">Didn't find the answer you were looking for?</h3>
+                        <p style="color:var(--text-muted); margin-bottom: 30px;">Our support team is currently building out communication channels. You will soon be able to reach us directly.</p>
+                        
+                        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+                            <button class="btn btn-outline" style="pointer-events:none;">Send Feedback</button>
+                            <button class="btn btn-primary" style="pointer-events:none;">Contact Support</button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item"><svg class="icon-svg"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</a>
+        <a href="#" class="nav-item"><svg class="icon-svg"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Student</a>
+        <a href="#" class="nav-item"><svg class="icon-svg"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Teacher</a>
+        <a href="#" class="nav-item"><svg class="icon-svg"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Updates</a>
+        <a href="#" class="nav-item"><svg class="icon-svg"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg> More</a>
+    </nav>
+
+    <!-- FRONTEND JAVASCRIPT LOGIC -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // ==========================================
+            // PREVENT DEFAULT ON LINKS
+            // ==========================================
+            document.querySelectorAll('a, button').forEach(el => {
+                if(!el.hasAttribute('onclick') && el.getAttribute('id') !== 'backToTopBtn') {
+                    el.addEventListener('click', e => e.preventDefault());
+                }
+            });
+
+            if (window.innerWidth > 1024) document.getElementById('desktop-bell').style.display = 'flex';
+
+            // ==========================================
+            // INTERSECTION OBSERVER (Animations)
+            // ==========================================
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!prefersReducedMotion) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                            obs.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+                document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            } else {
+                document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
+            }
+
+            // ==========================================
+            // FAQ ACCORDION LOGIC
+            // ==========================================
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                const header = item.querySelector('.faq-header');
+                // Keyboard accessibility
+                header.setAttribute('tabindex', '0');
+                
+                const toggleItem = () => {
+                    item.classList.toggle('active');
+                };
+
+                header.addEventListener('click', toggleItem);
+                header.addEventListener('keydown', (e) => {
+                    if(e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleItem();
+                    }
+                });
+            });
+
+            // ==========================================
+            // 3D DESKTOP HOVER
+            // ==========================================
+            if (window.innerWidth > 768 && !prefersReducedMotion) {
+                const cards = document.querySelectorAll('.card-3d.interactive');
+                cards.forEach(card => {
+                    card.addEventListener('mousemove', e => {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        card.style.setProperty('--mouse-x', `${x}px`);
+                        card.style.setProperty('--mouse-y', `${y}px`);
+                        
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
+                        const rotateX = ((y - centerY) / centerY) * -4;
+                        const rotateY = ((x - centerX) / centerX) * 4;
+                        card.style.transform = `perspective(1000px) scale(1.02) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = ``;
+                    });
+                });
+            }
+
+            // ==========================================
+            // BACK TO TOP BUTTON
+            // ==========================================
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+        });
+
+        // ==========================================
+        // CATEGORY FILTER & SEARCH LOGIC
+        // ==========================================
+        window.setFilter = function(category) {
+            // Update Active Pill UI
+            document.querySelectorAll('.filter-pill').forEach(pill => {
+                pill.classList.remove('active');
+                if(pill.innerText.trim() === category) pill.classList.add('active');
+            });
+
+            // Clear Search
+            const searchInput = document.getElementById('faq-search');
+            searchInput.value = '';
+            
+            // Filter Groups
+            let hasVisible = false;
+            document.querySelectorAll('.faq-group').forEach(group => {
+                const groupCategory = group.getAttribute('data-category');
+                
+                // Show all items inside matching group (incase search hid them)
+                group.querySelectorAll('.faq-item').forEach(item => item.style.display = 'block');
+
+                if (category === 'ALL' || groupCategory === category || (category === 'PYQ' && groupCategory === 'PYQ')) {
+                    group.style.display = 'block';
+                    hasVisible = true;
+                } else {
+                    group.style.display = 'none';
+                }
+            });
+
+            document.getElementById('search-empty').style.display = 'none';
+
+            // Smooth scroll to FAQ container if triggered by quick-help
+            if(category !== 'ALL') {
+                const container = document.getElementById('faq-container');
+                const offset = 100; // Header offset
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const elementRect = container.getBoundingClientRect().top;
+                const elementPosition = elementRect - bodyRect;
+                const offsetPosition = elementPosition - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        };
+
+        window.handleSearch = function() {
+            const query = document.getElementById('faq-search').value.toLowerCase();
+            const groups = document.querySelectorAll('.faq-group');
+            let totalMatches = 0;
+
+            // Reset pill filters to ALL visually when searching
+            if(query.length > 0) {
+                document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+                document.querySelector('.filter-pill').classList.add('active');
+            }
+
+            groups.forEach(group => {
+                let groupHasMatch = false;
+                const items = group.querySelectorAll('.faq-item');
+
+                items.forEach(item => {
+                    const headerText = item.querySelector('.faq-header').innerText.toLowerCase();
+                    const bodyText = item.querySelector('.faq-body').innerText.toLowerCase();
+
+                    if (headerText.includes(query) || bodyText.includes(query)) {
+                        item.style.display = 'block';
+                        groupHasMatch = true;
+                        totalMatches++;
+                        
+                        // Auto-expand if search query is specific (optional enhancement)
+                        if (query.length > 3) item.classList.add('active');
+                    } else {
+                        item.style.display = 'none';
+                        item.classList.remove('active');
+                    }
+                });
+
+                // Show/hide group based on child matches
+                if (groupHasMatch) {
+                    group.style.display = 'block';
+                } else {
+                    group.style.display = 'none';
+                }
+            });
+
+            // Handle Empty State
+            const emptyState = document.getElementById('search-empty');
+            if (totalMatches === 0 && query !== '') {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+            }
+        };
+
+    </script>
+</body>
+</html>
